@@ -6,8 +6,15 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.widget.CalendarView;
 
+import java.lang.reflect.Array;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Created by aRomano on 27/05/2016.
@@ -16,8 +23,8 @@ public class DBHelper extends SQLiteOpenHelper {
     private static DBHelper instance;
     private static SQLiteDatabase db;
 
-    private static final String DATABASE_NAME = "traininglog.db";
-    private static final int DATABASE_VERSION = 8;
+    private static final String DATABASE_NAME = "gestorescolar.db";
+    private static final int DATABASE_VERSION = 1;
 
     private DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -43,6 +50,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String tb_cadeiras = "tb_cadeiras";
     public static final String col_cadeiras_id = "_id";
     public static final String col_cadeiras_nome = "nome";
+    public static final String col_cadeiras_abbr = "abbr";
     public static final String col_cadeiras_creditos = "creditos";
 
     public static final String tb_matriculas = "tb_matriculas";
@@ -62,6 +70,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String tb_aulas = "tb_aulas";
     public static final String col_aulas_id = "_id";
     public static final String col_aulas_idcadeira = "idcadeira";
+    public static final String col_aulas_diasemana = "diasemana";
     public static final String col_aulas_horaentrada = "horaentrada";
     public static final String col_aulas_horasaida = "horasaida";
     public static final String col_aulas_sala = "sala";
@@ -147,9 +156,10 @@ public class DBHelper extends SQLiteOpenHelper {
                 "create table tb_cadeiras (" +
                         "%s integer primary key," +
                         "%s varchar(20) not null unique," +
+                        "%s varchar(6) not null unique," +
                         "%s int" +
                         ");",
-                tb_cadeiras, col_cadeiras_id, col_cadeiras_nome, col_cadeiras_creditos);
+                tb_cadeiras, col_cadeiras_id, col_cadeiras_nome, col_cadeiras_abbr, col_cadeiras_creditos);
         String create_tb_matriculas = String.format(
                 "create table tb_matriculas (" +
                         "%s integer primary key," +
@@ -165,12 +175,13 @@ public class DBHelper extends SQLiteOpenHelper {
                 "create table tb_aulas (" +
                         "%s integer primary key," +
                         "%s int not null," +
-                        "%s time not null," +
-                        "%s time not null," +
+                        "%s int not null check("+ col_aulas_diasemana + " between 0 and 6)," +
+                        "%s varchar(20) not null," +
+                        "%s varchar(20) not null," +
                         "%s varchar(20) not null," +
                         "%s" +
                         ");",
-                tb_aulas, col_aulas_id, col_aulas_idcadeira, col_aulas_horaentrada, col_aulas_horasaida, col_aulas_sala,
+                tb_aulas, col_aulas_id, col_aulas_idcadeira, col_aulas_diasemana, col_aulas_horaentrada, col_aulas_horasaida, col_aulas_sala,
                 const_aulas_fktb_aulastb_cadeiras);
         String create_tb_aulasfrequentadas = String.format(
                 "create table tb_aulasfrequentadas (" +
@@ -266,6 +277,321 @@ public class DBHelper extends SQLiteOpenHelper {
         super.onConfigure(db);
         db.setForeignKeyConstraintsEnabled(true);
     }
+
+
+    // aluno
+    public int createAlunos(Aluno aluno) {
+        ContentValues cv = new ContentValues();
+        cv.put(col_alunos_username, aluno.getUsername());
+        cv.put(col_alunos_nome, aluno.getNome());
+        cv.put(col_alunos_apelido, aluno.getApelido());
+        cv.put(col_alunos_datanasc, aluno.getDatanasc());
+
+        //SimpleDateFormat fmt = new SimpleDateFormat("dd-MMM-yyyy");
+        //fmt.setCalendar(aluno.getDatanasc());
+        //String dateFormatted = fmt.format(aluno.getDatanasc());
+        //cv.put(col_alunos_datanasc, dateFormatted);
+
+        return (int) db.insert(tb_alunos, null, cv);
+    }
+
+    public ArrayList<Aluno> readAlunos() {
+        ArrayList<Aluno> alunos = new ArrayList<>();
+
+        String query = "select * from tb_alunos;";
+
+        Cursor c = db.rawQuery(query, null);
+
+        if(c == null || c.getCount() == 0) {
+            Log.d("debug readAlunos", "null");
+            return null;
+        }
+
+        while(c.moveToNext()) {
+            int idaluno = c.getInt(c.getColumnIndex("_id"));
+            String username = c.getString(c.getColumnIndex("username"));
+            String nome = c.getString(c.getColumnIndex("nome"));
+            String apelido = c.getString(c.getColumnIndex("apelido"));
+            String datanasc = c.getString(c.getColumnIndex("datanasc"));
+            //GregorianCalendar cal;
+            //try {
+            //    DateFormat df = new SimpleDateFormat("dd MM yyyy");
+            //    Date date = df.parse(datanasc);
+            //    cal = (GregorianCalendar) GregorianCalendar.getInstance();
+            //    cal.setTime(date);
+            //} catch (Exception e) {
+            //    e.printStackTrace();
+            //    break;
+            //}
+
+            Aluno aluno = new Aluno(username, nome, apelido, datanasc);
+            alunos.add(aluno);
+        }
+        c.close();
+        return alunos;
+    }
+
+    // aulas
+    public int createAulas(Aula aula) {
+        ContentValues cv = new ContentValues();
+        cv.put(col_aulas_idcadeira, aula.getCadeira().getIdcadeira());
+        cv.put(col_aulas_diasemana, aula.getDiaSemana());
+        cv.put(col_aulas_horaentrada, aula.getHoraentrada());
+        cv.put(col_aulas_horasaida, aula.getHorasaida());
+        cv.put(col_aulas_sala, aula.getSala());
+
+        return (int) db.insert(tb_aulas, null, cv);
+    }
+
+
+
+    // aulasfreq
+    public int createAulasFrequentadas(int idaluno, Aula aula) {
+        ContentValues cv = new ContentValues();
+        cv.put(col_aulasfrequentadas_idaluno, idaluno);
+        cv.put(col_aulasfrequentadas_idaula, aula.getIdaula());
+
+        return (int) db.insert(tb_aulasfrequentadas, null, cv);
+    }
+
+    public ArrayList<Aula> readAulasFrequentadas(int idaluno) {
+        ArrayList<Aula> aulasfreq = new ArrayList<>();
+        String query = "select " +
+                "tb_cadeiras.nome, " +
+                "tb_cadeiras.abbr, " +
+                "tb_aulas.diasemana, " +
+                "tb_aulas.horaentrada, " +
+                "tb_aulas.horasaida, " +
+                "tb_aulas.sala " +
+                "from tb_aulasfrequentadas " +
+                "inner join tb_aulas on tb_aulas._id = tb_aulasfrequentadas.idaula " +
+                "inner join tb_alunos on tb_alunos._id = tb_aulasfrequentadas.idaluno " +
+                "inner join tb_cadeiras on tb_cadeiras._id = tb_aulas.idcadeira " +
+                "where tb_alunos._id = " + idaluno + ";";
+
+        Cursor c = db.rawQuery(query, null);
+
+        if(c == null || c.getCount() == 0) {
+            Log.d("debug readAulasFreq", "null");
+            return null;
+        }
+
+        while(c.moveToNext()) {
+            String nome = c.getString(c.getColumnIndex("nome"));
+            String abbr = c.getString(c.getColumnIndex("abbr"));
+            int diasemana = c.getInt(c.getColumnIndex("diasemana"));
+            String horaentrada = c.getString(c.getColumnIndex("horaentrada"));
+            String horasaida = c.getString(c.getColumnIndex("horasaida"));
+            String sala = c.getString(c.getColumnIndex("sala"));
+
+            Cadeira cadeira = new Cadeira(nome, abbr);
+            Aula aula = new Aula(cadeira, diasemana, horaentrada, horasaida, sala);
+            aulasfreq.add(aula);
+        }
+        c.close();
+        return aulasfreq;
+    }
+
+    // cadeiras
+    public int createCadeiras(Cadeira cadeira) {
+        ContentValues cv = new ContentValues();
+        cv.put(col_cadeiras_nome ,cadeira.getName());
+        cv.put(col_cadeiras_abbr ,cadeira.getAbbr());
+        cv.put(col_cadeiras_creditos ,cadeira.getCreditos());
+
+        return (int)db.insert(tb_cadeiras, null, cv);
+    }
+
+    // exames
+    public int createExames(Exame exame) {
+        ContentValues cv = new ContentValues();
+        cv.put(col_exames_idcadeira, exame.getCadeira().getIdcadeira());
+        cv.put(col_exames_datahora, exame.getDatahora());
+        cv.put(col_exames_sala, exame.getSala());
+        cv.put(col_exames_descricao, exame.getDescricao());
+
+        return (int) db.insert(tb_exames, null, cv);
+    }
+
+    public ArrayList<Exame> readExames(int idaluno) {
+        ArrayList<Exame> exames = new ArrayList<>();
+        String query = "select " +
+                "tb_exames.datahora, " +
+                "tb_exames.descricao, " +
+                "tb_exames.sala, " +
+                "tb_cadeiras.abbr, " +
+                "tb_cadeiras.nome " +
+                "from tb_exames " +
+                "inner join tb_matriculas on tb_matriculas.idcadeira = tb_exames.idcadeira " +
+                "inner join tb_cadeiras on tb_cadeiras._id = tb_exames.idcadeira " +
+                "where tb_matriculas.idaluno = " + idaluno + ";";
+
+        Cursor c = db.rawQuery(query, null);
+
+        if(c == null || c.getCount() == 0) {
+            Log.d("debug readExames", "null");
+            return null;
+        }
+
+        while(c.moveToNext()) {
+            String datahora = c.getString(c.getColumnIndex("datahora"));
+            String abbr = c.getString(c.getColumnIndex("abbr"));
+            String nome = c.getString(c.getColumnIndex("nome"));
+            String sala = c.getString(c.getColumnIndex("sala"));
+            String descricao = c.getString(c.getColumnIndex("descricao"));
+
+            Cadeira cadeira = new Cadeira(nome, abbr);
+            Exame exame = new Exame(cadeira, datahora, sala, descricao);
+            exames.add(exame);
+        }
+        c.close();
+        return exames;
+    }
+
+    // matriculas
+    public int createMatriculas(int idaluno, int idcadeira) {
+        ContentValues cv = new ContentValues();
+        cv.put(col_matriculas_idaluno, idaluno);
+        cv.put(col_matriculas_idcadeira, idcadeira);
+
+        return (int) db.insert(tb_matriculas, null, cv);
+    }
+
+    // notasexame
+    public int createNotaExames(NotaExame nota) {
+        ContentValues cv = new ContentValues();
+        cv.put(col_notasexame_idaluno, nota.getIdaluno());
+        cv.put(col_notasexame_idexame, nota.getExame().getIdexame());
+        cv.put(col_notasexame_nota, nota.getNota());
+
+        return (int) db.insert(tb_notasexame, null, cv);
+    }
+
+    public ArrayList<NotaExame> readNotaExames(int idaluno) {
+        ArrayList<NotaExame> notas = new ArrayList<>();
+        String query = "select " +
+                "tb_notasexame.nota, " +
+                "tb_cadeiras.nome, " +
+                "tb_cadeiras.abbr " +
+                "from tb_notasexame " +
+                "inner join tb_exames on tb_exames._id = tb_notasexame.idexame " +
+                "inner join tb_cadeiras on tb_cadeiras._id = tb_exames.idcadeira " +
+                "where tb_notasexame.idaluno = " + idaluno + ";";
+
+        Cursor c = db.rawQuery(query, null);
+
+        if(c == null || c.getCount() == 0) {
+            Log.d("debug readNotaExames", "null");
+            return null;
+        }
+
+        while(c.moveToNext()) {
+            String abbr = c.getString(c.getColumnIndex("abbr"));
+            String nome = c.getString(c.getColumnIndex("nome"));
+            float nota = c.getFloat(c.getColumnIndex("nota"));
+
+            Cadeira cadeira = new Cadeira(nome, abbr);
+            Exame exame = new Exame(cadeira);
+            NotaExame notaExame = new NotaExame(idaluno, exame, nota);
+            notas.add(notaExame);
+        }
+        c.close();
+        return notas;
+    }
+
+    // notastrabalho
+    public int createNotaTrabalhos(NotaTrabalho nota) {
+        ContentValues cv = new ContentValues();
+        cv.put(col_notastrabalho_idaluno, nota.getIdaluno());
+        cv.put(col_notastrabalho_idtrabalho, nota.getTrabalho().getIdtrabalho());
+        cv.put(col_notastrabalho_nota, nota.getNota());
+
+        return (int) db.insert(tb_notasexame, null, cv);
+    }
+
+    public ArrayList<NotaTrabalho> readNotaTrabalhos(int idaluno) {
+        ArrayList<NotaTrabalho> notas = new ArrayList<>();
+        String query = "select " +
+                "tb_notastrabalho.nota, " +
+                "tb_cadeiras.nome, " +
+                "tb_cadeiras.abbr " +
+                "from tb_notastrabalho " +
+                "inner join tb_trabalhos on tb_trabalhos._id = tb_notastrabalho.idtrabalho " +
+                "inner join tb_cadeiras on tb_cadeiras._id = tb_trabalhos.idcadeira " +
+                "where tb_notastrabalho.idaluno = " + idaluno + ";";
+
+        Cursor c = db.rawQuery(query, null);
+
+        if(c == null || c.getCount() == 0) {
+            Log.d("debug readNotaTrabalhos", "null");
+            return null;
+        }
+
+        while(c.moveToNext()) {
+            String abbr = c.getString(c.getColumnIndex("abbr"));
+            String nome = c.getString(c.getColumnIndex("nome"));
+            float nota = c.getFloat(c.getColumnIndex("nota"));
+
+            Cadeira cadeira = new Cadeira(nome, abbr);
+            Trabalho trabalho = new Trabalho(cadeira);
+            NotaTrabalho notaTrabalho = new NotaTrabalho(idaluno, trabalho, nota);
+            notas.add(notaTrabalho);
+        }
+        c.close();
+        return notas;
+    }
+
+    // trabalho
+    public int createTrabalhos(Trabalho trabalho) {
+        ContentValues cv = new ContentValues();
+        cv.put(col_trabalhos_idcadeira, trabalho.getCadeira().getIdcadeira());
+        cv.put(col_trabalhos_dataentrega, trabalho.getDataentrega());
+        cv.put(col_trabalhos_descricao, trabalho.getDescricao());
+
+        return (int) db.insert(tb_trabalhos, null, cv);
+    }
+
+    public ArrayList<Trabalho> readTrabalhos(int idaluno) {
+        ArrayList<Trabalho> trabalhos = new ArrayList<>();
+        String query = "select " +
+                "tb_trabalhos.dataentrega, " +
+                "tb_trabalhos.descricao, " +
+                "tb_cadeiras.abbr, " +
+                "tb_cadeiras.nome " +
+                "from tb_trabalhos " +
+                "inner join tb_matriculas on tb_matriculas.idcadeira = tb_trabalhos.idcadeira " +
+                "inner join tb_cadeiras on tb_cadeiras._id = tb_trabalhos.idcadeira " +
+                "where tb_matriculas.idaluno = " + idaluno + ";";
+
+        Cursor c = db.rawQuery(query, null);
+
+        if(c == null || c.getCount() == 0) {
+            Log.d("debug readTrabalhos", "null");
+            return null;
+        }
+
+        while(c.moveToNext()) {
+            String dataentrega = c.getString(c.getColumnIndex("dataentrega"));
+            String abbr = c.getString(c.getColumnIndex("abbr"));
+            String nome = c.getString(c.getColumnIndex("nome"));
+            String descricao = c.getString(c.getColumnIndex("descricao"));
+
+            Cadeira cadeira = new Cadeira(nome, abbr);
+            Trabalho trabalho = new Trabalho(cadeira, dataentrega, descricao);
+            trabalhos.add(trabalho);
+        }
+        c.close();
+        return trabalhos;
+    }
+
+
+
+
+
+
+
+
+
 
 
 

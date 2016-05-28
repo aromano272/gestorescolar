@@ -54,8 +54,8 @@ public class ClassScheduleFragment extends Fragment {
 
     private void populateScheduleInfos(LinearLayout layout_timeinfo, LinearLayout layout_weekdayinfo) {
         // TODO get the earliest class on the week and the latest, and populate layout_timeinfo according to min and max times
-        float minTime = 9f;
-        float maxTime = 18f;
+        float minTime = 8f;
+        float maxTime = 24f;
         float timeIncrements = 1f;
 
         // TODO make it possible to change timeincrements to fully work with any class time length
