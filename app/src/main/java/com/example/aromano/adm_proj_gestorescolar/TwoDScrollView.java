@@ -1097,10 +1097,26 @@ public class TwoDScrollView extends FrameLayout {
             y = clamp(y, getHeight() - getPaddingBottom() - getPaddingTop(), child.getHeight());
             if (x != getScrollX() || y != getScrollY()) {
                 super.scrollTo(x, y);
-                Log.d("debug", "x: " + String.valueOf(x) + "  y: " + String.valueOf(y));
-                // TODO
-                ClassScheduleFragment.scrollSideViews(x,y);
+                //Log.d("debug", "x: " + String.valueOf(x) + "  y: " + String.valueOf(y));
+                //// TODO
+                //if(ClassScheduleFragment.isActive) {
+                //    ClassScheduleFragment.scrollSideViews(x,y);
+                //} else if(EditScheduleActivity.isActive) {
+                //    EditScheduleActivity.scrollSideViews(x,y);
+                //}
             }
+        }
+    }
+
+    @Override
+    protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+        super.onScrollChanged(l, t, oldl, oldt);
+        Log.d("debug", "x: " + String.valueOf(l) + "  y: " + String.valueOf(t));
+        // TODO
+        if(ClassScheduleFragment.isActive) {
+            ClassScheduleFragment.scrollSideViews(l,t);
+        } else if(EditScheduleActivity.isActive) {
+            EditScheduleActivity.scrollSideViews(l,t);
         }
     }
 

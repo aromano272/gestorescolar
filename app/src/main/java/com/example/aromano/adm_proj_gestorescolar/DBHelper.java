@@ -24,7 +24,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static SQLiteDatabase db;
 
     private static final String DATABASE_NAME = "gestorescolar.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 5;
 
     private DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -79,6 +79,7 @@ public class DBHelper extends SQLiteOpenHelper {
             col_aulas_idcadeira, tb_cadeiras, col_cadeiras_id);
 
     public static final String tb_aulasfrequentadas = "tb_aulasfrequentadas";
+    public static final String col_aulasfrequentadas_id = "_id";
     public static final String col_aulasfrequentadas_idaluno = "idaluno";
     public static final String col_aulasfrequentadas_idaula = "idaula";
     public static final String const_aulasfrequentadas_fktb_aulasfrequentadastb_alunos = String.format(
@@ -144,7 +145,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String create_tb_alunos = String.format(
-                "create table tb_alunos (" +
+                "create table %s (" +
                         "%s integer primary key," +
                         "%s varchar(20) not null unique," +
                         "%s varchar(20)," +
@@ -153,7 +154,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         ");",
                 tb_alunos, col_alunos_id, col_alunos_username, col_alunos_nome, col_alunos_apelido, col_alunos_datanasc);
         String create_tb_cadeiras = String.format(
-                "create table tb_cadeiras (" +
+                "create table %s (" +
                         "%s integer primary key," +
                         "%s varchar(20) not null unique," +
                         "%s varchar(6) not null unique," +
@@ -161,7 +162,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         ");",
                 tb_cadeiras, col_cadeiras_id, col_cadeiras_nome, col_cadeiras_abbr, col_cadeiras_creditos);
         String create_tb_matriculas = String.format(
-                "create table tb_matriculas (" +
+                "create table %s (" +
                         "%s integer primary key," +
                         "%s int not null," +
                         "%s int not null," +
@@ -172,7 +173,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 tb_matriculas, col_matriculas_id, col_matriculas_idaluno, col_matriculas_idcadeira,
                 const_matriculas_fktb_matriculastb_alunos, const_matriculas_fktb_matriculastb_cadeiras, const_matriculas_unqidalunoidcadeira);
         String create_tb_aulas = String.format(
-                "create table tb_aulas (" +
+                "create table %s (" +
                         "%s integer primary key," +
                         "%s int not null," +
                         "%s int not null check("+ col_aulas_diasemana + " between 0 and 6)," +
@@ -184,7 +185,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 tb_aulas, col_aulas_id, col_aulas_idcadeira, col_aulas_diasemana, col_aulas_horaentrada, col_aulas_horasaida, col_aulas_sala,
                 const_aulas_fktb_aulastb_cadeiras);
         String create_tb_aulasfrequentadas = String.format(
-                "create table tb_aulasfrequentadas (" +
+                "create table %s (" +
                         "%s integer primary key," +
                         "%s int not null," +
                         "%s int not null," +
@@ -192,21 +193,21 @@ public class DBHelper extends SQLiteOpenHelper {
                         "%s," +
                         "%s" +
                         ");",
-                tb_aulasfrequentadas, col_aulasfrequentadas_idaluno, col_aulasfrequentadas_idaula, const_aulasfrequentadas_fktb_aulasfrequentadastb_alunos,
+                tb_aulasfrequentadas, col_aulasfrequentadas_id, col_aulasfrequentadas_idaluno, col_aulasfrequentadas_idaula, const_aulasfrequentadas_fktb_aulasfrequentadastb_alunos,
                 const_aulasfrequentadas_fktb_aulasfrequentadastb_aulas, const_aulasfrequentadas_unqidalunoidaula);
         String create_tb_exames = String.format(
-                "create table tb_exames (" +
+                "create table %s (" +
                         "%s integer primary key," +
                         "%s int not null," +
                         "%s datetime not null," +
                         "%s varchar(20) not null," +
-                        "%s varchar(max)," +
+                        "%s varchar(255)," +
                         "%s" +
                         ");",
                 tb_exames, col_exames_id, col_exames_idcadeira, col_exames_datahora, col_exames_sala, col_exames_descricao,
                 const_exames_fktb_examestb_cadeiras);
         String create_tb_notasexame = String.format(
-                "create table tb_notasexame (" +
+                "create table %s (" +
                         "%s integer primary key," +
                         "%s int not null," +
                         "%s int not null," +
@@ -218,17 +219,17 @@ public class DBHelper extends SQLiteOpenHelper {
                 tb_notasexame, col_notasexame_id, col_notasexame_idaluno, col_notasexame_idexame, col_notasexame_nota, const_notasexame_fktb_notasexametb_alunos,
                 const_notasexame_fktb_notasexametb_exames, const_notasexame_unqidalunoidexame);
         String create_tb_trabalhos = String.format(
-                "create table tb_trabalhos (" +
+                "create table %s (" +
                         "%s integer primary key," +
                         "%s int not null," +
                         "%s datetime not null," +
-                        "%s varchar(max)," +
+                        "%s varchar(255)," +
                         "%s" +
                         ");",
                 tb_trabalhos, col_trabalhos_id, col_trabalhos_idcadeira, col_trabalhos_dataentrega, col_trabalhos_descricao,
                 const_trabalhos_fktb_trabalhostb_cadeiras);
         String create_tb_notastrabalho = String.format(
-                "create table tb_notastrabalho (" +
+                "create table %s (" +
                         "%s integer primary key," +
                         "%s int not null," +
                         "%s int not null," +
@@ -259,15 +260,15 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d("DBHelper", "onUpgrade() called");
-        db.execSQL("drop table if exists " + tb_alunos);
-        db.execSQL("drop table if exists " + tb_cadeiras);
-        db.execSQL("drop table if exists " + tb_matriculas);
-        db.execSQL("drop table if exists " + tb_aulas);
-        db.execSQL("drop table if exists " + tb_aulasfrequentadas);
-        db.execSQL("drop table if exists " + tb_exames);
-        db.execSQL("drop table if exists " + tb_notasexame);
-        db.execSQL("drop table if exists " + tb_trabalhos);
         db.execSQL("drop table if exists " + tb_notastrabalho);
+        db.execSQL("drop table if exists " + tb_trabalhos);
+        db.execSQL("drop table if exists " + tb_notasexame);
+        db.execSQL("drop table if exists " + tb_exames);
+        db.execSQL("drop table if exists " + tb_aulasfrequentadas);
+        db.execSQL("drop table if exists " + tb_aulas);
+        db.execSQL("drop table if exists " + tb_matriculas);
+        db.execSQL("drop table if exists " + tb_cadeiras);
+        db.execSQL("drop table if exists " + tb_alunos);
 
         onCreate(db);
     }
@@ -287,12 +288,31 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put(col_alunos_apelido, aluno.getApelido());
         cv.put(col_alunos_datanasc, aluno.getDatanasc());
 
-        //SimpleDateFormat fmt = new SimpleDateFormat("dd-MMM-yyyy");
-        //fmt.setCalendar(aluno.getDatanasc());
-        //String dateFormatted = fmt.format(aluno.getDatanasc());
-        //cv.put(col_alunos_datanasc, dateFormatted);
-
         return (int) db.insert(tb_alunos, null, cv);
+    }
+
+    public Aluno readAlunos(String user) {
+        Aluno aluno = null;
+        String query = "select * from tb_alunos where username = " + user;
+
+        Cursor c = db.rawQuery(query, null);
+
+        if(c == null || c.getCount() == 0) {
+            Log.d("debug readAlunos", "null");
+            return null;
+        }
+
+        while(c.moveToNext()) {
+            int idaluno = c.getInt(c.getColumnIndex("_id"));
+            String username = c.getString(c.getColumnIndex("username"));
+            String nome = c.getString(c.getColumnIndex("nome"));
+            String apelido = c.getString(c.getColumnIndex("apelido"));
+            String datanasc = c.getString(c.getColumnIndex("datanasc"));
+
+            aluno = new Aluno(idaluno, username, nome, apelido, datanasc);
+        }
+        c.close();
+        return aluno;
     }
 
     public ArrayList<Aluno> readAlunos() {
@@ -313,18 +333,8 @@ public class DBHelper extends SQLiteOpenHelper {
             String nome = c.getString(c.getColumnIndex("nome"));
             String apelido = c.getString(c.getColumnIndex("apelido"));
             String datanasc = c.getString(c.getColumnIndex("datanasc"));
-            //GregorianCalendar cal;
-            //try {
-            //    DateFormat df = new SimpleDateFormat("dd MM yyyy");
-            //    Date date = df.parse(datanasc);
-            //    cal = (GregorianCalendar) GregorianCalendar.getInstance();
-            //    cal.setTime(date);
-            //} catch (Exception e) {
-            //    e.printStackTrace();
-            //    break;
-            //}
 
-            Aluno aluno = new Aluno(username, nome, apelido, datanasc);
+            Aluno aluno = new Aluno(idaluno, username, nome, apelido, datanasc);
             alunos.add(aluno);
         }
         c.close();

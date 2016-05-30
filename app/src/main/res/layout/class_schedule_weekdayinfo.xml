@@ -8,11 +8,10 @@
 
     <TextView
         android:id="@+id/tv_weekday"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_width="@dimen/class_schedule_itemnode_width"
+        android:layout_height="@dimen/class_schedule_itemnode_height"
         android:gravity="center"
+        android:text="Saturday"
         />
 
 </FrameLayout>

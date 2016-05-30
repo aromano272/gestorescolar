@@ -16,6 +16,18 @@ public class ExamScheduleFragment extends Fragment {
     // TODO maybe implement users calendar integration https://developer.android.com/guide/topics/providers/calendar-provider.html
     // TODO https://guides.codepath.com/android/Interacting-with-the-Calendar
 
+    private Aluno ALUNO;
+    private DBHelper db;
+
+    public static ExamScheduleFragment newInstance(Aluno aluno) {
+        ExamScheduleFragment fragment = new ExamScheduleFragment();
+        Bundle args = new Bundle();
+        args.putParcelable("aluno", aluno);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+
     public ExamScheduleFragment() {
         // Required empty public constructor
     }

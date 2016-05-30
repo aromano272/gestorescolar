@@ -13,6 +13,16 @@ import android.view.ViewGroup;
  */
 public class GradesFragment extends Fragment {
 
+    private Aluno ALUNO;
+    private DBHelper db;
+
+    public static GradesFragment newInstance(Aluno aluno) {
+        GradesFragment fragment = new GradesFragment();
+        Bundle args = new Bundle();
+        args.putParcelable("aluno", aluno);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     public GradesFragment() {
         // Required empty public constructor

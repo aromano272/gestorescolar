@@ -1,12 +1,15 @@
 package com.example.aromano.adm_proj_gestorescolar;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by aRomano on 27/05/2016.
  */
-public class Aula {
+public class Aula implements Parcelable {
     private int idaula;
     private Cadeira cadeira;
-    private int diaSemana;
+    private int diaSemana; // 0-6, 0 is monday
     private String horaentrada;
     private String horasaida;
     private String sala;
@@ -73,4 +76,43 @@ public class Aula {
     public void setDiaSemana(int diaSemana) {
         this.diaSemana = diaSemana;
     }
+
+
+
+    // parcelable interface
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(idaula);
+        dest.writeParcelable(cadeira, flags);
+        dest.writeInt(diaSemana);
+        dest.writeString(horaentrada);
+        dest.writeString(horasaida);
+        dest.writeString(sala);
+    }
+
+    private Aula(Parcel source) {
+        this.idaula = source.readInt();
+        this.cadeira = source.readParcelable(Cadeira.class.getClassLoader());
+        this.diaSemana = source.readInt();
+        this.horaentrada = source.readString();
+        this.horasaida = source.readString();
+        this.sala = source.readString();
+    }
+
+    public static final Parcelable.Creator<Aula> CREATOR = new Parcelable.Creator<Aula>() {
+        @Override
+        public Aula createFromParcel(Parcel source) {
+            return new Aula(source);
+        }
+
+        @Override
+        public Aula[] newArray(int size) {
+            return new Aula[size];
+        }
+    };
 }

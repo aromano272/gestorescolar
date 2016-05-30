@@ -13,15 +13,25 @@ import android.widget.ScrollView;
 import java.util.ArrayList;
 
 public class ContentActivity extends AppCompatActivity {
+    private Aluno ALUNO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_content);
+
+        // TODO get aluno from intent
+        if(getIntent().getParcelableExtra("aluno") != null) {
+            ALUNO = getIntent().getParcelableExtra("aluno");
+        } else {
+            finish();
+        }
+
+
         ArrayList<Fragment> fragments = new ArrayList<>();
-        fragments.add(new ClassScheduleFragment());
-        fragments.add(new ExamScheduleFragment());
-        fragments.add(new GradesFragment());
+        fragments.add(ClassScheduleFragment.newInstance(ALUNO));
+        fragments.add(ExamScheduleFragment.newInstance(ALUNO));
+        fragments.add(GradesFragment.newInstance(ALUNO));
         String[] tabTitles = new String[]{"Classes", "Exams", "Grades"};
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
