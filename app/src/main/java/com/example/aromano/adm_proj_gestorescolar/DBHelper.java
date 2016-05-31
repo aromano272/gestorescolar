@@ -6,15 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.widget.CalendarView;
 
-import java.lang.reflect.Array;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 
 /**
  * Created by aRomano on 27/05/2016.
@@ -24,7 +17,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static SQLiteDatabase db;
 
     private static final String DATABASE_NAME = "gestorescolar.db";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     private DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -44,8 +37,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String col_alunos_id = "_id";
     public static final String col_alunos_username = "username";
     public static final String col_alunos_nome = "nome";
-    public static final String col_alunos_apelido = "apelido";
-    public static final String col_alunos_datanasc = "datanasc";
+    public static final String col_alunos_email = "email";
 
     public static final String tb_cadeiras = "tb_cadeiras";
     public static final String col_cadeiras_id = "_id";
@@ -149,10 +141,9 @@ public class DBHelper extends SQLiteOpenHelper {
                         "%s integer primary key," +
                         "%s varchar(20) not null unique," +
                         "%s varchar(20)," +
-                        "%s varchar(20)," +
-                        "%s date not null" +
+                        "%s varchar(20)" +
                         ");",
-                tb_alunos, col_alunos_id, col_alunos_username, col_alunos_nome, col_alunos_apelido, col_alunos_datanasc);
+                tb_alunos, col_alunos_id, col_alunos_username, col_alunos_nome, col_alunos_email);
         String create_tb_cadeiras = String.format(
                 "create table %s (" +
                         "%s integer primary key," +
@@ -285,19 +276,18 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put(col_alunos_username, aluno.getUsername());
         cv.put(col_alunos_nome, aluno.getNome());
-        cv.put(col_alunos_apelido, aluno.getApelido());
-        cv.put(col_alunos_datanasc, aluno.getDatanasc());
+        cv.put(col_alunos_email, aluno.getEmail());
 
         return (int) db.insert(tb_alunos, null, cv);
     }
 
     public Aluno readAlunos(String user) {
         Aluno aluno = null;
-        String query = "select * from tb_alunos where username = " + user;
+        String query = "select * from tb_alunos where username = '" + user + "';";
 
         Cursor c = db.rawQuery(query, null);
 
-        if(c == null || c.getCount() == 0) {
+        if(c == null || c.getCount() <= 0) {
             Log.d("debug readAlunos", "null");
             return null;
         }
@@ -306,10 +296,9 @@ public class DBHelper extends SQLiteOpenHelper {
             int idaluno = c.getInt(c.getColumnIndex("_id"));
             String username = c.getString(c.getColumnIndex("username"));
             String nome = c.getString(c.getColumnIndex("nome"));
-            String apelido = c.getString(c.getColumnIndex("apelido"));
-            String datanasc = c.getString(c.getColumnIndex("datanasc"));
+            String email = c.getString(c.getColumnIndex("email"));
 
-            aluno = new Aluno(idaluno, username, nome, apelido, datanasc);
+            aluno = new Aluno(idaluno, username, nome, email);
         }
         c.close();
         return aluno;
@@ -331,10 +320,9 @@ public class DBHelper extends SQLiteOpenHelper {
             int idaluno = c.getInt(c.getColumnIndex("_id"));
             String username = c.getString(c.getColumnIndex("username"));
             String nome = c.getString(c.getColumnIndex("nome"));
-            String apelido = c.getString(c.getColumnIndex("apelido"));
-            String datanasc = c.getString(c.getColumnIndex("datanasc"));
+            String email = c.getString(c.getColumnIndex("email"));
 
-            Aluno aluno = new Aluno(idaluno, username, nome, apelido, datanasc);
+            Aluno aluno = new Aluno(idaluno, username, nome, email);
             alunos.add(aluno);
         }
         c.close();
@@ -555,7 +543,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public int createTrabalhos(Trabalho trabalho) {
         ContentValues cv = new ContentValues();
         cv.put(col_trabalhos_idcadeira, trabalho.getCadeira().getIdcadeira());
-        cv.put(col_trabalhos_dataentrega, trabalho.getDataentrega());
+        cv.put(col_trabalhos_dataentrega, trabalho.getDatahora());
         cv.put(col_trabalhos_descricao, trabalho.getDescricao());
 
         return (int) db.insert(tb_trabalhos, null, cv);

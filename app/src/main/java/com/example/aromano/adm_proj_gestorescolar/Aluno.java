@@ -3,8 +3,6 @@ package com.example.aromano.adm_proj_gestorescolar;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.GregorianCalendar;
-
 /**
  * Created by aRomano on 27/05/2016.
  */
@@ -12,23 +10,19 @@ public class Aluno implements Parcelable {
     private int idaluno;
     private String username;
     private String nome;
-    private String apelido;
-    private String datanasc;
+    private String email;
 
-
-    public Aluno(String username, String nome, String apelido, String datanasc) {
+    public Aluno(String username, String nome, String email) {
         this.username = username;
         this.nome = nome;
-        this.apelido = apelido;
-        this.datanasc = datanasc;
+        this.email = email;
     }
 
-    public Aluno(int idaluno, String username, String nome, String apelido, String datanasc) {
+    public Aluno(int idaluno, String username, String nome, String email) {
         this.idaluno = idaluno;
         this.username = username;
         this.nome = nome;
-        this.apelido = apelido;
-        this.datanasc = datanasc;
+        this.email = email;
     }
 
     public int getIdaluno() {
@@ -55,20 +49,12 @@ public class Aluno implements Parcelable {
         this.nome = nome;
     }
 
-    public String getApelido() {
-        return apelido;
+    public String getEmail() {
+        return email;
     }
 
-    public void setApelido(String apelido) {
-        this.apelido = apelido;
-    }
-
-    public String getDatanasc() {
-        return datanasc;
-    }
-
-    public void setDatanasc(String datanasc) {
-        this.datanasc = datanasc;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
 
@@ -83,16 +69,14 @@ public class Aluno implements Parcelable {
         dest.writeInt(idaluno);
         dest.writeString(username);
         dest.writeString(nome);
-        dest.writeString(apelido);
-        dest.writeString(datanasc);
+        dest.writeString(email);
     }
 
     private Aluno(Parcel source) {
         this.idaluno = source.readInt();
         this.username = source.readString();
         this.nome = source.readString();
-        this.apelido = source.readString();
-        this.datanasc = source.readString();
+        this.email = source.readString();
     }
 
     public static final Parcelable.Creator<Aluno> CREATOR = new Parcelable.Creator<Aluno>() {

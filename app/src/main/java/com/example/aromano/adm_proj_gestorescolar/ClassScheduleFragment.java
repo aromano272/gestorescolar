@@ -6,13 +6,14 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -32,7 +33,7 @@ public class ClassScheduleFragment extends Fragment {
     static HorizontalScrollView sv_weeksinfo;
     static boolean isActive = false;
 
-    private Aluno ALUNO;
+    private Aluno aluno;
     private DBHelper db;
     private ArrayList<Aula> aulasfreq;
 
@@ -51,10 +52,10 @@ public class ClassScheduleFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setHasOptionsMenu(true);
 
         if(getArguments() != null) {
-            ALUNO = getArguments().getParcelable("aluno");
+            aluno = getArguments().getParcelable("aluno");
         }
     }
 
@@ -63,7 +64,7 @@ public class ClassScheduleFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         db = DBHelper.getInstance(getActivity());
-        aulasfreq = db.readAulasFrequentadas(ALUNO.getIdaluno());
+        aulasfreq = db.readAulasFrequentadas(aluno.getIdaluno());
 
         if(aulasfreq != null) {
             return inflater.inflate(R.layout.fragment_class_schedule_v3, container, false);
@@ -218,5 +219,12 @@ public class ClassScheduleFragment extends Fragment {
             sv_timeinfo.scrollTo(0, y);
             sv_weeksinfo.scrollTo(x, 0);
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+        inflater.inflate(R.menu.fragment_exam_add, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 }

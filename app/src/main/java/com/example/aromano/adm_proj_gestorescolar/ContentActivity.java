@@ -2,18 +2,16 @@ package com.example.aromano.adm_proj_gestorescolar;
 
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.HorizontalScrollView;
-import android.widget.ScrollView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 public class ContentActivity extends AppCompatActivity {
-    private Aluno ALUNO;
+    private Aluno aluno;
+    long timer_start = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,16 +20,16 @@ public class ContentActivity extends AppCompatActivity {
 
         // TODO get aluno from intent
         if(getIntent().getParcelableExtra("aluno") != null) {
-            ALUNO = getIntent().getParcelableExtra("aluno");
+            aluno = getIntent().getParcelableExtra("aluno");
         } else {
             finish();
         }
 
 
         ArrayList<Fragment> fragments = new ArrayList<>();
-        fragments.add(ClassScheduleFragment.newInstance(ALUNO));
-        fragments.add(ExamScheduleFragment.newInstance(ALUNO));
-        fragments.add(GradesFragment.newInstance(ALUNO));
+        fragments.add(ClassScheduleFragment.newInstance(aluno));
+        fragments.add(ExamScheduleFragment.newInstance(aluno));
+        fragments.add(GradesFragment.newInstance(aluno));
         String[] tabTitles = new String[]{"Classes", "Exams", "Grades"};
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -40,6 +38,19 @@ public class ContentActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        int delay = 2000;
+        long timer_now = System.currentTimeMillis();
+
+        if (timer_now - timer_start < delay) {
+            finish();
+        } else {
+            timer_start = timer_now;
+            Toast.makeText(this, "Press again to exit.", Toast.LENGTH_SHORT).show();
+        }
     }
 
 

@@ -22,6 +22,8 @@ public class LoginActivity extends AppCompatActivity {
     Button btn_login;
     CheckBox cb_rememberme;
     DBHelper db;
+    Aluno aluno;
+    long timer_start = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +37,11 @@ public class LoginActivity extends AppCompatActivity {
         et_pass = (EditText) findViewById(R.id.et_pass);
         btn_login = (Button) findViewById(R.id.btn_login);
         cb_rememberme = (CheckBox) findViewById(R.id.cb_rememberme);
+
+        if(getIntent().getParcelableExtra("aluno") != null) {
+            aluno = getIntent().getParcelableExtra("aluno");
+            et_user.setText(aluno.getUsername());
+        }
 
 
         tv_register.setPaintFlags(tv_register.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
@@ -66,13 +73,15 @@ public class LoginActivity extends AppCompatActivity {
                     if (users_pass.getString(user, null).contentEquals(pass)) {
                         if(cb_rememberme.isChecked()) {
                             default_user.edit().putString("default_user", user).apply();
+                        } else {
+                            default_user.edit().putString("default_user", "").apply();
                         }
                         launchContentActivity(user);
                     } else {
-                        Toast.makeText(LoginActivity.this, "Wrong password!", Toast.LENGTH_SHORT).show();
+                        et_pass.setError("Wrong password!");
                     }
                 } else {
-                    Toast.makeText(LoginActivity.this, "Wrong username!", Toast.LENGTH_SHORT).show();
+                    et_user.setError("Wrong username!");
                 }
             }
         });
@@ -85,7 +94,22 @@ public class LoginActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, ContentActivity.class);
         intent.putExtra("aluno", aluno);
+        // starts it as a new task and clears the backstack
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        int delay = 2000;
+        long timer_now = System.currentTimeMillis();
+
+        if (timer_now - timer_start < delay) {
+            finish();
+        } else {
+            timer_start = timer_now;
+            Toast.makeText(this, "Press again to exit.", Toast.LENGTH_SHORT).show();
+        }
     }
 
 }
