@@ -28,7 +28,7 @@ public class ContentActivity extends AppCompatActivity {
 
         ArrayList<Fragment> fragments = new ArrayList<>();
         fragments.add(ClassScheduleFragment.newInstance(aluno));
-        fragments.add(ExamScheduleFragment.newInstance(aluno));
+        fragments.add(EventScheduleFragment.newInstance(aluno));
         fragments.add(GradesFragment.newInstance(aluno));
         String[] tabTitles = new String[]{"Classes", "Exams", "Grades"};
 
@@ -37,6 +37,10 @@ public class ContentActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+
+
+
 
     }
 

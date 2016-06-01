@@ -35,6 +35,10 @@ public class GradesFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        if(getArguments() != null) {
+            aluno = getArguments().getParcelable("aluno");
+        }
     }
 
 

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ExamScheduleFragment"
+    tools:context=".EventScheduleFragment"
     android:background="#fff"
     android:orientation="vertical"
     >
@@ -25,7 +25,10 @@
     <ListView
         android:id="@+id/lv_exams"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:divider="@color/lightPrimary"
+        android:dividerHeight="2dp"
+        >
 
     </ListView>
 

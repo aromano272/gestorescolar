@@ -3,6 +3,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="lightPrimary">#f6f6f6</color>
     <color name="class_schedule_border">#999</color>
     <color name="edittext_wrong">#E82C0C</color>
 </resources>

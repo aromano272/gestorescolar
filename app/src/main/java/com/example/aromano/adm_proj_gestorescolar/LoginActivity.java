@@ -38,12 +38,6 @@ public class LoginActivity extends AppCompatActivity {
         btn_login = (Button) findViewById(R.id.btn_login);
         cb_rememberme = (CheckBox) findViewById(R.id.cb_rememberme);
 
-        if(getIntent().getParcelableExtra("aluno") != null) {
-            aluno = getIntent().getParcelableExtra("aluno");
-            et_user.setText(aluno.getUsername());
-        }
-
-
         tv_register.setPaintFlags(tv_register.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         tv_forgotpass.setPaintFlags(tv_forgotpass.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
 
@@ -53,6 +47,11 @@ public class LoginActivity extends AppCompatActivity {
         if(default_user.getString("default_user", null) != null) {
             et_user.setText(default_user.getString("default_user", ""));
             cb_rememberme.setChecked(true);
+        }
+
+        if(getIntent().getParcelableExtra("aluno") != null) {
+            aluno = getIntent().getParcelableExtra("aluno");
+            et_user.setText(aluno.getUsername());
         }
 
         tv_register.setOnClickListener(new View.OnClickListener() {

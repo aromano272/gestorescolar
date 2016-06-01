@@ -1,24 +1,22 @@
 package com.example.aromano.adm_proj_gestorescolar;
 
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.provider.CalendarContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CalendarView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class ExamScheduleFragment extends Fragment {
+public class EventScheduleFragment extends Fragment {
     // TODO maybe implement users calendar integration https://developer.android.com/guide/topics/providers/calendar-provider.html
     // TODO https://guides.codepath.com/android/Interacting-with-the-Calendar
 
@@ -29,8 +27,8 @@ public class ExamScheduleFragment extends Fragment {
     private ArrayList<Evento> eventos;
     ListView lv_exams;
 
-    public static ExamScheduleFragment newInstance(Aluno aluno) {
-        ExamScheduleFragment fragment = new ExamScheduleFragment();
+    public static EventScheduleFragment newInstance(Aluno aluno) {
+        EventScheduleFragment fragment = new EventScheduleFragment();
         Bundle args = new Bundle();
         args.putParcelable("aluno", aluno);
         fragment.setArguments(args);
@@ -38,7 +36,7 @@ public class ExamScheduleFragment extends Fragment {
     }
 
 
-    public ExamScheduleFragment() {
+    public EventScheduleFragment() {
         // Required empty public constructor
     }
 
@@ -46,28 +44,43 @@ public class ExamScheduleFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        if(getArguments() != null) {
+            aluno = getArguments().getParcelable("aluno");
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_exam_schedule, container, false);
+        return inflater.inflate(R.layout.fragment_events_schedule, container, false);
     }
-
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         db = DBHelper.getInstance(getActivity());
-        eventos = db.readExames(aluno.getIdaluno());
+        eventos = db.readEventos(aluno);
 
-        Evento asfkl = new Evento(new Cadeira("", ""), "", "");
-        ((Trabalho) asfkl).getIdtrabalho();
+        //TODO debug
+        ArrayList<Evento> eventos = new ArrayList<>();
+        Cadeira c1 = new Cadeira("Matemática", "MAT");
+        Cadeira c2 = new Cadeira("Bases de dados", "BD");
+        Evento e1 = new Evento(0, c1, "Trabalho", "16/01/2016", "", null);
+        Evento e2 = new Evento(1, c2, "Exame", "26/02/2016", "teste bla", "A5");
+        Evento e3 = new Evento(2, c2, "Trabalho", "03/03/2016", "teste bla1312", null);
+        eventos.add(e1);
+        eventos.add(e2);
+        eventos.add(e3);
 
         lv_exams = (ListView) view.findViewById(R.id.lv_exams);
-        lv_exams.setAdapter(new ExamScheduleAdapter(getActivity(), eventos));
+        lv_exams.setAdapter(new EventScheduleAdapter(getActivity(), eventos));
+    }
+
+    private void createEvent() {
+        // TODO make popup to add
 
     }
 
@@ -85,6 +98,7 @@ public class ExamScheduleFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_exam_add:
+                createEvent();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -25,7 +25,7 @@ public class EditScheduleActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_schedule);
+        setContentView(R.layout.activity_edit_classschedule);
 
         aulasfreq = getIntent().getParcelableArrayListExtra("aulasfreq");
 
@@ -65,8 +65,6 @@ public class EditScheduleActivity extends AppCompatActivity {
             time = hour + ":00";
             tv_time.setText(time);
             layout_timeinfo.addView(layout_time);
-
-
         }
 
         for(String weekday : weekdays) {

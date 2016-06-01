@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:background="?android:attr/selectableItemBackground"
+    >
+
+
+    <RelativeLayout
+        android:id="@+id/layout_wrapper"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/events_schedule_item_height"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp"
+        >
+
+        <ImageView
+            android:layout_width="@dimen/events_schedule_item_circle"
+            android:layout_height="@dimen/events_schedule_item_circle"
+            android:background="@drawable/shape_circle"
+            android:layout_centerVertical="true"
+            android:id="@+id/iv_circle"/>
+
+        <TextView
+            android:id="@+id/tv_tipoevento"
+            android:layout_width="@dimen/events_schedule_item_circle"
+            android:layout_height="@dimen/events_schedule_item_circle"
+            android:text="Ex"
+            android:textSize="40sp"
+            android:textColor="@color/lightPrimary"
+            android:gravity="center"
+            android:layout_centerVertical="true"
+            />
+
+        <TextView
+            android:id="@+id/tv_cadeira"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="4dp"
+            android:text="Matemática"
+            android:layout_alignTop="@id/iv_circle"
+            android:layout_toRightOf="@id/tv_tipoevento"
+            android:textSize="20sp"
+            />
+
+        <ImageView
+            android:id="@+id/iv_datahora"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="4dp"
+            android:layout_alignBottom="@+id/iv_circle"
+            android:layout_toRightOf="@id/tv_tipoevento"
+            android:background="@drawable/ic_date_range_black_24dp"
+            />
+
+        <TextView
+            android:id="@+id/tv_datahora"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="24/04/2016"
+            android:layout_alignBottom="@+id/iv_datahora"
+            android:layout_toRightOf="@id/iv_datahora"
+            android:textSize="18dp"
+            android:textStyle="bold"
+            />
+
+        <TextView
+            android:id="@+id/tv_sala"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:text="Sala:"
+            android:layout_alignBottom="@+id/tv_datahora"
+            android:layout_toRightOf="@id/tv_datahora"
+            android:textSize="16sp"
+            />
+
+        <ImageView
+            android:id="@+id/iv_rightarrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_keyboard_arrow_right_black_48dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"/>
+
+
+    </RelativeLayout>
+
+
+</FrameLayout>

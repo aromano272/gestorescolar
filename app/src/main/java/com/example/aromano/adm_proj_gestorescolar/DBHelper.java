@@ -17,7 +17,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static SQLiteDatabase db;
 
     private static final String DATABASE_NAME = "gestorescolar.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 8;
 
     private DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -423,6 +423,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "inner join tb_cadeiras on tb_cadeiras._id = tb_aulas.idcadeira " +
                 "where tb_alunos._id = " + aluno.getIdaluno() + ";";
 
+
         Cursor c = db.rawQuery(query, null);
 
         if(c == null || c.getCount() == 0) {
@@ -456,6 +457,30 @@ public class DBHelper extends SQLiteOpenHelper {
         return (int)db.insert(tb_cadeiras, null, cv);
     }
 
+    public ArrayList<Cadeira> readCadeiras() {
+        ArrayList<Cadeira> cadeiras = new ArrayList<>();
+        String query = "select * from tb_cadeiras;";
+
+        Cursor c = db.rawQuery(query, null);
+
+        if(c == null || c.getCount() == 0) {
+            Log.d("debug readCadeiras", "null");
+            return null;
+        }
+
+        while(c.moveToNext()) {
+            int idcadeira = c.getInt(c.getColumnIndex("idcadeira"));
+            String nome = c.getString(c.getColumnIndex("nome"));
+            String abbr = c.getString(c.getColumnIndex("abbr"));
+            int creditos = c.getInt(c.getColumnIndex("creditos"));
+
+            Cadeira cadeira = new Cadeira(idcadeira, nome, abbr, creditos);
+            cadeiras.add(cadeira);
+        }
+        c.close();
+        return cadeiras;
+    }
+
     // tb_eventos
     public int createEventos(Evento evento) {
         ContentValues cv = new ContentValues();
@@ -478,7 +503,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 "tb_eventos.sala, " +
                 "tb_eventos.idcadeira, " +
                 "tb_cadeiras.abbr, " +
-                "tb_cadeiras.nome " +
+                "tb_cadeiras.nome, " +
                 "tb_cadeiras.creditos " +
                 "from tb_eventos " +
                 "inner join tb_matriculas on tb_matriculas.idcadeira = tb_eventos.idcadeira " +

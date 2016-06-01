@@ -64,10 +64,10 @@ public class ClassScheduleFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         db = DBHelper.getInstance(getActivity());
-        aulasfreq = db.readAulasFrequentadas(aluno.getIdaluno());
+        aulasfreq = db.readAulasFrequentadas(aluno);
 
         if(aulasfreq != null) {
-            return inflater.inflate(R.layout.fragment_class_schedule_v3, container, false);
+            return inflater.inflate(R.layout.fragment_class_schedule, container, false);
         } else {
             return inflater.inflate(R.layout.fragment_class_schedule_empty, container, false);
         }
