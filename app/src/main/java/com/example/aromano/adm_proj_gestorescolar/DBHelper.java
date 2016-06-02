@@ -458,6 +458,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public ArrayList<Cadeira> readCadeiras() {
+        db.execSQL("delete from tb_cadeiras");
         ArrayList<Cadeira> cadeiras = new ArrayList<>();
         String query = "select * from tb_cadeiras;";
 
@@ -469,7 +470,7 @@ public class DBHelper extends SQLiteOpenHelper {
         }
 
         while(c.moveToNext()) {
-            int idcadeira = c.getInt(c.getColumnIndex("idcadeira"));
+            int idcadeira = c.getInt(c.getColumnIndex("_id"));
             String nome = c.getString(c.getColumnIndex("nome"));
             String abbr = c.getString(c.getColumnIndex("abbr"));
             int creditos = c.getInt(c.getColumnIndex("creditos"));

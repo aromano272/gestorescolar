@@ -4,8 +4,6 @@ package com.example.aromano.adm_proj_gestorescolar;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,7 +14,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class EventScheduleFragment extends Fragment {
+public class EventScheduleFragment extends Fragment implements AddEventDialogFragment.AddEventDialogListener {
     // TODO maybe implement users calendar integration https://developer.android.com/guide/topics/providers/calendar-provider.html
     // TODO https://guides.codepath.com/android/Interacting-with-the-Calendar
 
@@ -79,9 +77,11 @@ public class EventScheduleFragment extends Fragment {
         lv_exams.setAdapter(new EventScheduleAdapter(getActivity(), eventos));
     }
 
-    private void createEvent() {
+    private void showCreateEventDialog() {
         // TODO make popup to add
-
+        AddEventDialogFragment fragment = AddEventDialogFragment.newInstance(aluno);
+        fragment.setTargetFragment(EventScheduleFragment.this, 300);
+        fragment.show(getActivity().getSupportFragmentManager(), "fragment_add_event");
     }
 
 
@@ -98,10 +98,15 @@ public class EventScheduleFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_exam_add:
-                createEvent();
+                showCreateEventDialog();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onFinishAddEventDialog(Evento evento) {
+
     }
 }
