@@ -4,17 +4,19 @@ package com.example.aromano.adm_proj_gestorescolar;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class EventScheduleFragment extends Fragment implements AddEventDialogFragment.AddEventDialogListener {
+public class EventScheduleFragment extends Fragment implements AddEventDialogFragment.AddEventDialogListener, EventScheduleAdapter.EventScheduleAdapterListener {
     // TODO maybe implement users calendar integration https://developer.android.com/guide/topics/providers/calendar-provider.html
     // TODO https://guides.codepath.com/android/Interacting-with-the-Calendar
 
@@ -22,8 +24,9 @@ public class EventScheduleFragment extends Fragment implements AddEventDialogFra
 
     private Aluno aluno;
     private DBHelper db;
-    private ArrayList<Evento> eventos;
+    private ArrayList<Evento> eventos = new ArrayList<>();
     ListView lv_exams;
+    EventScheduleAdapter eventScheduleAdapter;
 
     public static EventScheduleFragment newInstance(Aluno aluno) {
         EventScheduleFragment fragment = new EventScheduleFragment();
@@ -60,44 +63,32 @@ public class EventScheduleFragment extends Fragment implements AddEventDialogFra
         super.onViewCreated(view, savedInstanceState);
 
         db = DBHelper.getInstance(getActivity());
-        eventos = db.readEventos(aluno);
-
-        //TODO debug
-        ArrayList<Evento> eventos = new ArrayList<>();
-        Cadeira c1 = new Cadeira("Matemática", "MAT");
-        Cadeira c2 = new Cadeira("Bases de dados", "BD");
-        Evento e1 = new Evento(0, c1, "Trabalho", "16/01/2016", "", null);
-        Evento e2 = new Evento(1, c2, "Exame", "26/02/2016", "teste bla", "A5");
-        Evento e3 = new Evento(2, c2, "Trabalho", "03/03/2016", "teste bla1312", null);
-        eventos.add(e1);
-        eventos.add(e2);
-        eventos.add(e3);
+        if(db.readEventos(aluno) != null) {
+            eventos = db.readEventos(aluno);
+        }
 
         lv_exams = (ListView) view.findViewById(R.id.lv_exams);
-        lv_exams.setAdapter(new EventScheduleAdapter(getActivity(), eventos));
+        eventScheduleAdapter = new EventScheduleAdapter(getActivity(), EventScheduleFragment.this, eventos);
+        lv_exams.setAdapter(eventScheduleAdapter);
     }
 
     private void showCreateEventDialog() {
-        // TODO make popup to add
-        AddEventDialogFragment fragment = AddEventDialogFragment.newInstance(aluno);
+        AddEventDialogFragment fragment = AddEventDialogFragment.newInstance(aluno, null);
         fragment.setTargetFragment(EventScheduleFragment.this, 300);
         fragment.show(getActivity().getSupportFragmentManager(), "fragment_add_event");
     }
 
-
-
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
-        inflater.inflate(R.menu.fragment_exam_add, menu);
+        inflater.inflate(R.menu.fragment_event, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_exam_add:
+            case R.id.menu_event_add:
                 showCreateEventDialog();
                 return true;
             default:
@@ -107,6 +98,24 @@ public class EventScheduleFragment extends Fragment implements AddEventDialogFra
 
     @Override
     public void onFinishAddEventDialog(Evento evento) {
+        evento.setIdevento(db.createEventos(evento));
+        EventScheduleFragment.this.eventos.add(evento);
+        eventScheduleAdapter.notifyDataSetChanged();
+        Log.d("debug", "onFinishAddEventDialog" + evento.getDatahora());
+    }
 
+    @Override
+    public void onMenuEditClicked(int position) {
+        Log.d("debug", "onMenuEditClicked");
+    }
+
+    @Override
+    public void onMenuDeleteClicked(int position) {
+        Log.d("debug", "onMenuDeleteClicked");
+    }
+
+    @Override
+    public void onEventClicked(int position) {
+        Log.d("debug", "onItemClicked");
     }
 }

@@ -72,11 +72,12 @@
         android:text="Data:"
         />
 
-    <EditText
-        android:id="@+id/datepicker"
+    <Button
+        android:id="@+id/btn_calendar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
+        android:text="Adicionar data do evento"
         />
 
     <TextView

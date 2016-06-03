@@ -107,7 +107,7 @@ public class AddCadeiraDialogFragment extends DialogFragment {
                 @Override
                 public void onClick(View v) {
                     // TODO clean this mess up
-                    String nome = et_nome.getText().toString();
+                    String nome = et_nome.getText().toString().substring(0, 1).toUpperCase() + et_nome.getText().toString().substring(1).toLowerCase();;
                     String abbr = et_abbr.getText().toString().toUpperCase();
                     int creditos = 0;
                     try {
@@ -118,13 +118,21 @@ public class AddCadeiraDialogFragment extends DialogFragment {
 
                     if(nome.length() < 1) {
                         et_nome.setError("Por favor preencha este campo");
+                        et_nome.requestFocus();
                     } else if(abbr.length() < 1) {
                         et_abbr.setError("Por favor preencha este campo");
+                        et_abbr.requestFocus();
                     } else if(abbr.length() > 4) {
                         et_abbr.setError("A abreviatura nao pode conter mais que 4 caracteres");
+                        et_abbr.requestFocus();
                     } else if(creditos <= 0) {
                         et_creditos.setError("Insira um numero maior que 0");
+                        et_creditos.requestFocus();
+                    } else if(db.readCadeiras(abbr) != null) {
+                        et_abbr.setError("Cadeira já existe");
+                        et_abbr.requestFocus();
                     } else {
+                        Log.d("debug", "addcadeiradialogfragment on sendbackresult");
                         Cadeira cadeira = new Cadeira(nome, abbr, creditos);
                         sendBackResult(cadeira);
                         dialog.dismiss();

@@ -52,7 +52,7 @@ public class GradesFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
-        inflater.inflate(R.menu.fragment_exam_add, menu);
+        inflater.inflate(R.menu.fragment_event, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 

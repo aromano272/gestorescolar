@@ -21,7 +21,8 @@
             android:layout_height="@dimen/events_schedule_item_circle"
             android:background="@drawable/shape_circle"
             android:layout_centerVertical="true"
-            android:id="@+id/iv_circle"/>
+            android:id="@+id/iv_circle"
+            />
 
         <TextView
             android:id="@+id/tv_tipoevento"

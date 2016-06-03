@@ -458,7 +458,6 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public ArrayList<Cadeira> readCadeiras() {
-        db.execSQL("delete from tb_cadeiras");
         ArrayList<Cadeira> cadeiras = new ArrayList<>();
         String query = "select * from tb_cadeiras;";
 
@@ -480,6 +479,28 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         c.close();
         return cadeiras;
+    }
+
+    public Cadeira readCadeiras(String abbr) {
+        Cadeira cadeira = null;
+        String query = "select * from tb_cadeiras where abbr = '" + abbr + "';";
+
+        Cursor c = db.rawQuery(query, null);
+
+        if(c == null || c.getCount() == 0) {
+            Log.d("debug readCadeiras", "null");
+            return null;
+        }
+
+        while(c.moveToNext()) {
+            int idcadeira = c.getInt(c.getColumnIndex("_id"));
+            String nome = c.getString(c.getColumnIndex("nome"));
+            int creditos = c.getInt(c.getColumnIndex("creditos"));
+
+            cadeira = new Cadeira(idcadeira, nome, abbr, creditos);
+        }
+        c.close();
+        return cadeira;
     }
 
     // tb_eventos
@@ -594,6 +615,19 @@ public class DBHelper extends SQLiteOpenHelper {
         c.close();
         return notas;
     }
+
+    // matriculas
+    public int createMatriculas(Aluno aluno, Cadeira cadeira) {
+        ContentValues cv = new ContentValues();
+        cv.put(col_matriculas_idaluno, aluno.getIdaluno());
+        cv.put(col_matriculas_idcadeira, cadeira.getIdcadeira());
+
+        return (int) db.insert(tb_matriculas, null, cv);
+    }
+
+
+
+
 
 
     /*
