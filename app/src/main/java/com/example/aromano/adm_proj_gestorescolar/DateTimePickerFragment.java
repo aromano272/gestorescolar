@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -23,10 +24,30 @@ public class DateTimePickerFragment extends DialogFragment implements DatePicker
         void onFinishDateTimeDialog(Calendar calendar);
     }
 
+    public static DateTimePickerFragment newInstance(int[] datetime) {
+        DateTimePickerFragment fragment = new DateTimePickerFragment();
+        Bundle args = new Bundle();
+        args.putIntArray("datetime", datetime);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        calendar = Calendar.getInstance();
+
+        if(getArguments() != null) {
+            int[] datetime = getArguments().getIntArray("datetime");
+            calendar.set(datetime[0], datetime[1], datetime[2], datetime[3], datetime[4]);
+        }
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        calendar = Calendar.getInstance();
+
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -40,8 +61,8 @@ public class DateTimePickerFragment extends DialogFragment implements DatePicker
         // https://code.google.com/p/android/issues/detail?id=34860 known issue, this is called twice
         if (view.isShown()) {
             calendar.set(year, monthOfYear, dayOfMonth);
-            int hours = 0;
-            int minutes = 0;
+            int hours = calendar.get(Calendar.HOUR_OF_DAY);
+            int minutes = calendar.get(Calendar.MINUTE);
             TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(), this, hours, minutes, DateFormat.is24HourFormat(getActivity()));
             timePickerDialog.show();
         }

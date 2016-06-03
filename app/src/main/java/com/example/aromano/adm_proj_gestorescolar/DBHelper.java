@@ -17,7 +17,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static SQLiteDatabase db;
 
     private static final String DATABASE_NAME = "gestorescolar.db";
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 13;
 
     private DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -515,6 +515,17 @@ public class DBHelper extends SQLiteOpenHelper {
         return (int) db.insert(tb_eventos, null, cv);
     }
 
+    public void updateEventos(Evento evento) {
+        ContentValues cv = new ContentValues();
+        cv.put(col_eventos_idcadeira, evento.getCadeira().getIdcadeira());
+        cv.put(col_eventos_tipo, evento.getTipo());
+        cv.put(col_eventos_datahora, evento.getDatahora());
+        cv.put(col_eventos_sala, evento.getSala());
+        cv.put(col_eventos_descricao, evento.getDescricao());
+
+        db.update(tb_eventos, cv, col_eventos_id + "=" + evento.getIdevento(), null);
+    }
+
     public ArrayList<Evento> readEventos(Aluno aluno) {
         ArrayList<Evento> eventos = new ArrayList<>();
         String query = "select " +
@@ -557,6 +568,8 @@ public class DBHelper extends SQLiteOpenHelper {
         c.close();
         return eventos;
     }
+
+
 
     // tb_notas
     public int createNotas(Nota nota) {

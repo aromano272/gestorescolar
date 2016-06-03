@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.security.spec.ECField;
 import java.util.ArrayList;
 
 public class EventScheduleFragment extends Fragment implements AddEventDialogFragment.AddEventDialogListener, EventScheduleAdapter.EventScheduleAdapterListener {
@@ -78,6 +79,12 @@ public class EventScheduleFragment extends Fragment implements AddEventDialogFra
         fragment.show(getActivity().getSupportFragmentManager(), "fragment_add_event");
     }
 
+    private void showEditEventDialog(Evento evento) {
+        AddEventDialogFragment fragment = AddEventDialogFragment.newInstance(aluno, evento);
+        fragment.setTargetFragment(EventScheduleFragment.this, 300);
+        fragment.show(getActivity().getSupportFragmentManager(), "fragment_edit_event");
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
@@ -98,15 +105,24 @@ public class EventScheduleFragment extends Fragment implements AddEventDialogFra
 
     @Override
     public void onFinishAddEventDialog(Evento evento) {
-        evento.setIdevento(db.createEventos(evento));
-        EventScheduleFragment.this.eventos.add(evento);
-        eventScheduleAdapter.notifyDataSetChanged();
-        Log.d("debug", "onFinishAddEventDialog" + evento.getDatahora());
+        if(evento.getIdevento() != 0) {
+            db.updateEventos(evento);
+            EventScheduleFragment.this.eventos.remove(evento.getIdevento()-1);
+            EventScheduleFragment.this.eventos.add(evento.getIdevento()-1, evento);
+            eventScheduleAdapter.notifyDataSetChanged();
+            Log.d("debug", "onFinishAddEventDialog edit" + evento.getDatahora());
+        } else {
+            evento.setIdevento(db.createEventos(evento));
+            EventScheduleFragment.this.eventos.add(evento);
+            eventScheduleAdapter.notifyDataSetChanged();
+            Log.d("debug", "onFinishAddEventDialog new" + evento.getDatahora());
+        }
     }
 
     @Override
     public void onMenuEditClicked(int position) {
-        Log.d("debug", "onMenuEditClicked");
+        Evento evento = eventos.get(position);
+        showEditEventDialog(evento);
     }
 
     @Override

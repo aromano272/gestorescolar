@@ -21,6 +21,12 @@ public class Cadeira implements Parcelable {
         this.abbr = abbr;
     }
 
+    public Cadeira(int idcadeira, String name, String abbr) {
+        this.idcadeira = idcadeira;
+        this.name = name;
+        this.abbr = abbr;
+    }
+
     public Cadeira(String name, String abbr, int creditos) {
         this.name = name;
         this.abbr = abbr;
