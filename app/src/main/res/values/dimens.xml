@@ -4,7 +4,7 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="class_schedule_itemnode_timewidth">50dp</dimen>
     <dimen name="class_schedule_itemnode_width">100dp</dimen>
-    <dimen name="class_schedule_itemnode_height">40dp</dimen>
+    <dimen name="class_schedule_itemnode_height">60dp</dimen>
     <dimen name="events_schedule_item_height">80dp</dimen>
     <dimen name="events_schedule_item_circle">64dp</dimen>
 </resources>

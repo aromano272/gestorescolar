@@ -1,9 +1,11 @@
 package com.example.aromano.adm_proj_gestorescolar;
 
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,13 +13,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
-import java.security.spec.ECField;
 import java.util.ArrayList;
 
-public class EventScheduleFragment extends Fragment implements AddEventDialogFragment.AddEventDialogListener, EventScheduleAdapter.EventScheduleAdapterListener {
+public class EventScheduleFragment extends Fragment implements AddEventDialogFragment.AddEventDialogListener, EditEventDialogFragment.EditEventDialogListener, EventScheduleAdapter.EventScheduleAdapterListener {
     // TODO maybe implement users calendar integration https://developer.android.com/guide/topics/providers/calendar-provider.html
     // TODO https://guides.codepath.com/android/Interacting-with-the-Calendar
 
@@ -73,14 +73,14 @@ public class EventScheduleFragment extends Fragment implements AddEventDialogFra
         lv_exams.setAdapter(eventScheduleAdapter);
     }
 
-    private void showCreateEventDialog() {
-        AddEventDialogFragment fragment = AddEventDialogFragment.newInstance(aluno, null);
+    private void showAddEventDialog() {
+        AddEventDialogFragment fragment = AddEventDialogFragment.newInstance(aluno);
         fragment.setTargetFragment(EventScheduleFragment.this, 300);
         fragment.show(getActivity().getSupportFragmentManager(), "fragment_add_event");
     }
 
     private void showEditEventDialog(Evento evento) {
-        AddEventDialogFragment fragment = AddEventDialogFragment.newInstance(aluno, evento);
+        EditEventDialogFragment fragment = EditEventDialogFragment.newInstance(aluno, evento);
         fragment.setTargetFragment(EventScheduleFragment.this, 300);
         fragment.show(getActivity().getSupportFragmentManager(), "fragment_edit_event");
     }
@@ -96,7 +96,7 @@ public class EventScheduleFragment extends Fragment implements AddEventDialogFra
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_event_add:
-                showCreateEventDialog();
+                showAddEventDialog();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -105,18 +105,19 @@ public class EventScheduleFragment extends Fragment implements AddEventDialogFra
 
     @Override
     public void onFinishAddEventDialog(Evento evento) {
-        if(evento.getIdevento() != 0) {
-            db.updateEventos(evento);
-            EventScheduleFragment.this.eventos.remove(evento.getIdevento()-1);
-            EventScheduleFragment.this.eventos.add(evento.getIdevento()-1, evento);
-            eventScheduleAdapter.notifyDataSetChanged();
-            Log.d("debug", "onFinishAddEventDialog edit" + evento.getDatahora());
-        } else {
-            evento.setIdevento(db.createEventos(evento));
-            EventScheduleFragment.this.eventos.add(evento);
-            eventScheduleAdapter.notifyDataSetChanged();
-            Log.d("debug", "onFinishAddEventDialog new" + evento.getDatahora());
-        }
+        evento.setIdevento(db.createEventos(evento));
+        EventScheduleFragment.this.eventos.add(evento);
+        eventScheduleAdapter.notifyDataSetChanged();
+        Log.d("debug", "onFinishEditEventDialog new" + evento.getDatahora());
+    }
+
+    @Override
+    public void onFinishEditEventDialog(Evento evento) {
+        db.updateEventos(evento);
+        EventScheduleFragment.this.eventos.remove(evento.getIdevento()-1);
+        EventScheduleFragment.this.eventos.add(evento.getIdevento()-1, evento);
+        eventScheduleAdapter.notifyDataSetChanged();
+        Log.d("debug", "onFinishEditEventDialog edit" + evento.getDatahora());
     }
 
     @Override
@@ -126,8 +127,26 @@ public class EventScheduleFragment extends Fragment implements AddEventDialogFra
     }
 
     @Override
-    public void onMenuDeleteClicked(int position) {
-        Log.d("debug", "onMenuDeleteClicked");
+    public void onMenuDeleteClicked(final int position) {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity())
+                .setTitle("Apagar Evento?")
+                .setPositiveButton("DELETE",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                db.deleteEventos(position);
+                                EventScheduleFragment.this.eventos.remove(position);
+                                eventScheduleAdapter.notifyDataSetChanged();
+                            }
+                        }
+                )
+                .setNegativeButton(android.R.string.no,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                dialog.dismiss();
+                            }
+                        }
+                );
+        dialog.show();
     }
 
     @Override

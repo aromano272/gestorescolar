@@ -17,7 +17,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static SQLiteDatabase db;
 
     private static final String DATABASE_NAME = "gestorescolar.db";
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 14;
 
     private DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -64,7 +64,6 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String col_aulas_idcadeira = "idcadeira";
     public static final String col_aulas_diasemana = "diasemana";
     public static final String col_aulas_horaentrada = "horaentrada";
-    public static final String col_aulas_horasaida = "horasaida";
     public static final String col_aulas_sala = "sala";
     public static final String const_aulas_fktb_aulastb_cadeiras = String.format(
             "constraint fktb_aulastb_cadeiras foreign key (%s) references %s (%s) on update cascade on delete cascade",
@@ -110,54 +109,6 @@ public class DBHelper extends SQLiteOpenHelper {
             "constraint unqidalunoidevento unique (%s,%s)",
             col_notas_idaluno, col_notas_idevento);
 
-    //public static final String tb_exames = "tb_exames";
-    //public static final String col_exames_id = "_id";
-    //public static final String col_exames_idcadeira = "idcadeira";
-    //public static final String col_exames_datahora = "datahora";
-    //public static final String col_exames_sala = "sala";
-    //public static final String col_exames_descricao = "descricao";
-    //public static final String const_exames_fktb_examestb_cadeiras = String.format(
-    //        "constraint fktb_examestb_cadeiras foreign key (%s) references %s (%s) on update cascade on delete cascade",
-    //        col_exames_idcadeira, tb_cadeiras, col_cadeiras_id);
-    //
-    //public static final String tb_notasexame = "tb_notasexame";
-    //public static final String col_notasexame_id = "_id";
-    //public static final String col_notasexame_idaluno = "idaluno";
-    //public static final String col_notasexame_idexame = "idexame";
-    //public static final String col_notasexame_nota = "nota";
-    //public static final String const_notasexame_fktb_notasexametb_alunos = String.format(
-    //        "constraint fktb_notasexametb_alunos foreign key (%s) references %s (%s) on update cascade on delete cascade",
-    //        col_notasexame_idaluno, tb_alunos, col_alunos_id);
-    //public static final String const_notasexame_fktb_notasexametb_exames = String.format(
-    //        "constraint fktb_notasexametb_exames foreign key (%s) references %s (%s) on update cascade on delete cascade",
-    //        col_notasexame_idexame, tb_exames, col_exames_id);
-    //public static final String const_notasexame_unqidalunoidexame = String.format(
-    //        "constraint unqidalunoidexame unique (%s,%s)",
-    //        col_notasexame_idaluno, col_notasexame_idexame);
-    //
-    //public static final String tb_trabalhos = "tb_trabalhos";
-    //public static final String col_trabalhos_id = "_id";
-    //public static final String col_trabalhos_idcadeira = "idcadeira";
-    //public static final String col_trabalhos_dataentrega = "dataentrega";
-    //public static final String col_trabalhos_descricao = "descricao";
-    //public static final String const_trabalhos_fktb_trabalhostb_cadeiras = String.format(
-    //        "constraint fktb_trabalhostb_cadeiras foreign key (%s) references %s (%s) on update cascade on delete cascade",
-    //        col_trabalhos_idcadeira, tb_cadeiras, col_cadeiras_id);
-    //
-    //public static final String tb_notastrabalho = "tb_notastrabalho";
-    //public static final String col_notastrabalho_id = "_id";
-    //public static final String col_notastrabalho_idaluno = "idaluno";
-    //public static final String col_notastrabalho_idtrabalho = "idtrabalho";
-    //public static final String col_notastrabalho_nota = "nota";
-    //public static final String const_notastrabalho_fktb_notastrabalhotb_alunos = String.format(
-    //        "constraint fktb_notastrabalhotb_alunos foreign key (%s) references %s (%s) on update cascade on delete cascade",
-    //        col_notastrabalho_idaluno, tb_alunos, col_alunos_id);
-    //public static final String const_notastrabalho_fktb_notastrabalhotb_trabalhos = String.format(
-    //        "constraint fktb_notastrabalhotb_trabalhos foreign key (%s) references %s (%s) on update cascade on delete cascade",
-    //        col_notastrabalho_idtrabalho, tb_trabalhos, col_trabalhos_id);
-    //public static final String const_notastrabalho_unqidalunoidtrabalho = String.format(
-    //        "constraint unqidalunoidtrabalho unique (%s,%s)",
-    //        col_notastrabalho_idaluno, col_notastrabalho_idtrabalho);
 
 
     @Override
@@ -194,12 +145,11 @@ public class DBHelper extends SQLiteOpenHelper {
                         "%s integer primary key," +
                         "%s int not null," +
                         "%s int not null check("+ col_aulas_diasemana + " between 0 and 6)," +
-                        "%s varchar(20) not null," +
-                        "%s varchar(20) not null," +
+                        "%s int not null," +
                         "%s varchar(20) not null," +
                         "%s" +
                         ");",
-                tb_aulas, col_aulas_id, col_aulas_idcadeira, col_aulas_diasemana, col_aulas_horaentrada, col_aulas_horasaida, col_aulas_sala,
+                tb_aulas, col_aulas_id, col_aulas_idcadeira, col_aulas_diasemana, col_aulas_horaentrada, col_aulas_sala,
                 const_aulas_fktb_aulastb_cadeiras);
         String create_tb_aulasfrequentadas = String.format(
                 "create table %s (" +
@@ -236,53 +186,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         ");",
                 tb_notas, col_notas_id, col_notas_idaluno, col_notas_idevento, col_notas_nota, const_notas_fktb_notastb_alunos,
                 const_notas_fktb_notastb_eventos, const_notas_unqidalunoidevento);
-        /*
-        String create_tb_exames = String.format(
-                "create table %s (" +
-                        "%s integer primary key," +
-                        "%s int not null," +
-                        "%s datetime not null," +
-                        "%s varchar(20) not null," +
-                        "%s varchar(255)," +
-                        "%s" +
-                        ");",
-                tb_exames, col_exames_id, col_exames_idcadeira, col_exames_datahora, col_exames_sala, col_exames_descricao,
-                const_exames_fktb_examestb_cadeiras);
-        String create_tb_notasexame = String.format(
-                "create table %s (" +
-                        "%s integer primary key," +
-                        "%s int not null," +
-                        "%s int not null," +
-                        "%s float not null," +
-                        "%s," +
-                        "%s," +
-                        "%s" +
-                        ");",
-                tb_notasexame, col_notasexame_id, col_notasexame_idaluno, col_notasexame_idexame, col_notasexame_nota, const_notasexame_fktb_notasexametb_alunos,
-                const_notasexame_fktb_notasexametb_exames, const_notasexame_unqidalunoidexame);
-        String create_tb_trabalhos = String.format(
-                "create table %s (" +
-                        "%s integer primary key," +
-                        "%s int not null," +
-                        "%s datetime not null," +
-                        "%s varchar(255)," +
-                        "%s" +
-                        ");",
-                tb_trabalhos, col_trabalhos_id, col_trabalhos_idcadeira, col_trabalhos_dataentrega, col_trabalhos_descricao,
-                const_trabalhos_fktb_trabalhostb_cadeiras);
-        String create_tb_notastrabalho = String.format(
-                "create table %s (" +
-                        "%s integer primary key," +
-                        "%s int not null," +
-                        "%s int not null," +
-                        "%s float not null," +
-                        "%s," +
-                        "%s," +
-                        "%s" +
-                        ");",
-                tb_notastrabalho, col_notastrabalho_id, col_notastrabalho_idaluno, col_notastrabalho_idtrabalho, col_notastrabalho_nota, const_notastrabalho_fktb_notastrabalhotb_alunos,
-                const_notastrabalho_fktb_notastrabalhotb_trabalhos, const_notastrabalho_unqidalunoidtrabalho);
-        */
+
 
         try {
             db.execSQL(create_tb_alunos);
@@ -292,10 +196,6 @@ public class DBHelper extends SQLiteOpenHelper {
             db.execSQL(create_tb_aulasfrequentadas);
             db.execSQL(create_tb_eventos);
             db.execSQL(create_tb_notas);
-            //db.execSQL(create_tb_exames);
-            //db.execSQL(create_tb_notasexame);
-            //db.execSQL(create_tb_trabalhos);
-            //db.execSQL(create_tb_notastrabalho);
             debug_insertTestingValues(db);
         } catch (Exception e) {
             Log.e("ERROR", e.toString());
@@ -305,10 +205,6 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d("DBHelper", "onUpgrade() called");
-        //db.execSQL("drop table if exists " + tb_notastrabalho);
-        //db.execSQL("drop table if exists " + tb_trabalhos);
-        //db.execSQL("drop table if exists " + tb_notasexame);
-        //db.execSQL("drop table if exists " + tb_exames);
         db.execSQL("drop table if exists " + tb_notas);
         db.execSQL("drop table if exists " + tb_eventos);
         db.execSQL("drop table if exists " + tb_aulasfrequentadas);
@@ -391,7 +287,6 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put(col_aulas_idcadeira, aula.getCadeira().getIdcadeira());
         cv.put(col_aulas_diasemana, aula.getDiaSemana());
         cv.put(col_aulas_horaentrada, aula.getHoraentrada());
-        cv.put(col_aulas_horasaida, aula.getHorasaida());
         cv.put(col_aulas_sala, aula.getSala());
 
         return (int) db.insert(tb_aulas, null, cv);
@@ -415,7 +310,6 @@ public class DBHelper extends SQLiteOpenHelper {
                 "tb_cadeiras.abbr, " +
                 "tb_aulas.diasemana, " +
                 "tb_aulas.horaentrada, " +
-                "tb_aulas.horasaida, " +
                 "tb_aulas.sala " +
                 "from tb_aulasfrequentadas " +
                 "inner join tb_aulas on tb_aulas._id = tb_aulasfrequentadas.idaula " +
@@ -435,12 +329,11 @@ public class DBHelper extends SQLiteOpenHelper {
             String nome = c.getString(c.getColumnIndex("nome"));
             String abbr = c.getString(c.getColumnIndex("abbr"));
             int diasemana = c.getInt(c.getColumnIndex("diasemana"));
-            String horaentrada = c.getString(c.getColumnIndex("horaentrada"));
-            String horasaida = c.getString(c.getColumnIndex("horasaida"));
+            int horaentrada = c.getInt(c.getColumnIndex("horaentrada"));
             String sala = c.getString(c.getColumnIndex("sala"));
 
             Cadeira cadeira = new Cadeira(nome, abbr);
-            Aula aula = new Aula(cadeira, diasemana, horaentrada, horasaida, sala);
+            Aula aula = new Aula(cadeira, diasemana, horaentrada, sala);
             aulasfreq.add(aula);
         }
         c.close();
@@ -524,6 +417,10 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put(col_eventos_descricao, evento.getDescricao());
 
         db.update(tb_eventos, cv, col_eventos_id + "=" + evento.getIdevento(), null);
+    }
+
+    public void deleteEventos(int idevento) {
+        db.delete(tb_eventos, col_eventos_id + "=" + idevento, null);
     }
 
     public ArrayList<Evento> readEventos(Aluno aluno) {

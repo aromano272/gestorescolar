@@ -5,11 +5,30 @@
     android:background="@drawable/border_bottomright"
     >
 
-    <TextView
-        android:id="@+id/tv_itemnode"
+    <LinearLayout
         android:layout_width="@dimen/class_schedule_itemnode_width"
         android:layout_height="@dimen/class_schedule_itemnode_height"
+        android:orientation="vertical"
         android:gravity="center"
-        />
+        >
+
+
+        <TextView
+            android:id="@+id/tv_classname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            />
+
+        <TextView
+            android:id="@+id/tv_sala"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="16dp"
+            android:layout_marginTop="8dp"
+            />
+
+    </LinearLayout>
 
 </FrameLayout>

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.aromano.adm_proj_gestorescolar.EditScheduleActivity"
+    tools:context=".EditClassScheduleActivity"
     android:orientation="vertical"
     >
 
@@ -28,11 +28,22 @@
                     android:layout_height="match_parent"
         >
 
+        <TextView
+            android:id="@+id/tv_entrada"
+            android:layout_width="@dimen/class_schedule_itemnode_timewidth"
+            android:layout_height="@dimen/class_schedule_itemnode_height"
+            android:text="Entrada"
+            android:fontFamily="sans-serif-condensed"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textSize="16sp"
+            />
+
         <HorizontalScrollView
             android:id="@+id/sv_weekdayinfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/class_schedule_itemnode_timewidth"
+            android:layout_toRightOf="@id/tv_entrada"
             android:scrollbars="none"
             >
 
@@ -52,7 +63,7 @@
             android:id="@+id/sv_timeinfo"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_below="@id/sv_weekdayinfo"
+            android:layout_below="@id/tv_entrada"
             android:scrollbars="none"
             >
 
@@ -72,7 +83,7 @@
             android:drawingCacheQuality="low"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/sv_weekdayinfo"
+            android:layout_below="@id/tv_entrada"
             android:layout_toRightOf="@id/sv_timeinfo"
             >
 

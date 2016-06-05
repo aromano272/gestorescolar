@@ -36,6 +36,7 @@ public class ClassScheduleFragment extends Fragment {
     private Aluno aluno;
     private DBHelper db;
     private ArrayList<Aula> aulasfreq;
+    Calendar calendar;
 
     public static ClassScheduleFragment newInstance(Aluno aluno) {
         ClassScheduleFragment fragment = new ClassScheduleFragment();
@@ -65,6 +66,7 @@ public class ClassScheduleFragment extends Fragment {
 
         db = DBHelper.getInstance(getActivity());
         aulasfreq = db.readAulasFrequentadas(aluno);
+        calendar = Calendar.getInstance();
 
         if(aulasfreq != null) {
             return inflater.inflate(R.layout.fragment_class_schedule, container, false);
@@ -109,24 +111,16 @@ public class ClassScheduleFragment extends Fragment {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
 
         for (Aula aula : aulasfreq) {
-            String horaentrada = aula.getHoraentrada();
-            try {
-                Date date = sdf.parse(horaentrada);
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(date);
-                int horas = calendar.get(Calendar.HOUR_OF_DAY);
-                if(horas < minTime) {
-                    minTime = calendar.get(Calendar.HOUR_OF_DAY);
-                } else if(horas > maxTime) {
-                    maxTime = calendar.get(Calendar.HOUR_OF_DAY);
-                }
-                if(aula.getDiaSemana() == 5) {
-                    saturdayClasses = true;
-                } else if(aula.getDiaSemana() == 6) {
-                    sundayClasses = true;
-                }
-            } catch(Exception e) {
-                e.printStackTrace();
+            int horaentrada = aula.getHoraentrada();
+            if(horaentrada < minTime) {
+                minTime = horaentrada;
+            } else if(horaentrada > maxTime) {
+                maxTime = horaentrada;
+            }
+            if(aula.getDiaSemana() == 5) {
+                saturdayClasses = true;
+            } else if(aula.getDiaSemana() == 6) {
+                sundayClasses = true;
             }
         }
 
@@ -177,7 +171,7 @@ public class ClassScheduleFragment extends Fragment {
                     (int)getResources().getDimension(R.dimen.class_schedule_itemnode_height)));
             for(int x = 0; x < itemnodesyx[x].length; x++) {
                 FrameLayout layout_itemnode = (FrameLayout) LayoutInflater.from(getActivity()).inflate(R.layout.class_schedule_itemnode, null);
-                TextView tv_itemnode = (TextView) layout_itemnode.findViewById(R.id.tv_itemnode);
+                TextView tv_itemnode = (TextView) layout_itemnode.findViewById(R.id.tv_classname);
 
                 // TODO maybe use the TextView reference to skip the findviewbyid afterwards? meh
                 itemnodesyx[x][y] = layout_itemnode;
@@ -192,10 +186,11 @@ public class ClassScheduleFragment extends Fragment {
     }
 
     private void editSchedule() {
-        Intent intent = new Intent(getActivity(), EditScheduleActivity.class);
+        Intent intent = new Intent(getActivity(), EditClassScheduleActivity.class);
         if(aulasfreq != null) {
             intent.putParcelableArrayListExtra("aulasfreq", aulasfreq);
         }
+        intent.putExtra("aluno", aluno);
         startActivity(intent);
     }
 

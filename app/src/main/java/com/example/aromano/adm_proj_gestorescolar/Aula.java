@@ -10,22 +10,19 @@ public class Aula implements Parcelable {
     private int idaula;
     private Cadeira cadeira;
     private int diaSemana; // 0-6, 0 is monday
-    private String horaentrada;
-    private String horasaida;
+    private int horaentrada;
     private String sala;
 
-    public Aula(Cadeira cadeira, int diaSemana, String horaentrada, String horasaida, String sala) {
+    public Aula(Cadeira cadeira, int diaSemana, int horaentrada, String sala) {
         this.sala = sala;
         this.cadeira = cadeira;
         this.horaentrada = horaentrada;
-        this.horasaida = horasaida;
     }
 
-    public Aula(int idaula, Cadeira cadeira, int diaSemana, String horaentrada, String horasaida, String sala) {
+    public Aula(int idaula, Cadeira cadeira, int diaSemana, int horaentrada, String sala) {
         this.idaula = idaula;
         this.cadeira = cadeira;
         this.horaentrada = horaentrada;
-        this.horasaida = horasaida;
         this.sala = sala;
     }
 
@@ -45,20 +42,12 @@ public class Aula implements Parcelable {
         this.cadeira = cadeira;
     }
 
-    public String getHoraentrada() {
+    public int getHoraentrada() {
         return horaentrada;
     }
 
-    public void setHoraentrada(String horaentrada) {
+    public void setHoraentrada(int horaentrada) {
         this.horaentrada = horaentrada;
-    }
-
-    public String getHorasaida() {
-        return horasaida;
-    }
-
-    public void setHorasaida(String horasaida) {
-        this.horasaida = horasaida;
     }
 
     public String getSala() {
@@ -90,8 +79,7 @@ public class Aula implements Parcelable {
         dest.writeInt(idaula);
         dest.writeParcelable(cadeira, flags);
         dest.writeInt(diaSemana);
-        dest.writeString(horaentrada);
-        dest.writeString(horasaida);
+        dest.writeInt(horaentrada);
         dest.writeString(sala);
     }
 
@@ -99,8 +87,7 @@ public class Aula implements Parcelable {
         this.idaula = source.readInt();
         this.cadeira = source.readParcelable(Cadeira.class.getClassLoader());
         this.diaSemana = source.readInt();
-        this.horaentrada = source.readString();
-        this.horasaida = source.readString();
+        this.horaentrada = source.readInt();
         this.sala = source.readString();
     }
 

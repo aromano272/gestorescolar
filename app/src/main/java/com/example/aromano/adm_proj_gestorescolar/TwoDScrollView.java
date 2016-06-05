@@ -37,9 +37,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
-import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.Scroller;
 import android.widget.TextView;
 
@@ -1101,8 +1099,8 @@ public class TwoDScrollView extends FrameLayout {
                 //// TODO
                 //if(ClassScheduleFragment.isActive) {
                 //    ClassScheduleFragment.scrollSideViews(x,y);
-                //} else if(EditScheduleActivity.isActive) {
-                //    EditScheduleActivity.scrollSideViews(x,y);
+                //} else if(EditClassScheduleActivity.isActive) {
+                //    EditClassScheduleActivity.scrollSideViews(x,y);
                 //}
             }
         }
@@ -1115,8 +1113,8 @@ public class TwoDScrollView extends FrameLayout {
         // TODO
         if(ClassScheduleFragment.isActive) {
             ClassScheduleFragment.scrollSideViews(l,t);
-        } else if(EditScheduleActivity.isActive) {
-            EditScheduleActivity.scrollSideViews(l,t);
+        } else if(EditClassScheduleActivity.isActive) {
+            EditClassScheduleActivity.scrollSideViews(l,t);
         }
     }
 
