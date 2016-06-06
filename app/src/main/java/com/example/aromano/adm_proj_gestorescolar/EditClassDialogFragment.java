@@ -157,7 +157,7 @@ public class EditClassDialogFragment extends DialogFragment
         }
         btn_horaentrada.setText(horaentrada);
         sp_diasemana.setSelection(oldaula.getDiaSemana());
-        sp_cadeiras.setSelection(oldaula.getCadeira().getIdcadeira());
+        sp_cadeiras.setSelection(oldaula.getCadeira().getIdcadeira() - 1);
         et_sala.setText(oldaula.getSala());
 
         dialog.setView(view);

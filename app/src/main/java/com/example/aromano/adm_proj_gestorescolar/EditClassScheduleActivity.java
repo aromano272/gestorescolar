@@ -165,18 +165,26 @@ public class EditClassScheduleActivity extends AppCompatActivity implements
     }
 
     private void redraw() {
+        for(int y = 0; y < itemnodesyx.length; y++) {
+            for(int x = 0; x < itemnodesyx[x].length; x++) {
+                final int starttime = minStartTime + y;
+                final int diasemana = x;
+                TextView tv_classname = (TextView) itemnodesyx[y][x].findViewById(R.id.tv_classname);
+                TextView tv_sala = (TextView) itemnodesyx[y][x].findViewById(R.id.tv_sala);
+                tv_classname.setText("");
+                tv_sala.setText("");
+                itemnodesyx[y][x].setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AddClassDialogFragment fragment = AddClassDialogFragment.newInstance(aluno, starttime, diasemana);
+                        fragment.show(getSupportFragmentManager(), "fragment_add_class");
+                    }
+                });
+            }
+        }
         for (int y = 0; y < classnodesyx.length; y++) {
             for (int x = 0; x < classnodesyx[y].length; x++) {
-                if (classnodesyx[y][x] != null) {
-                    final Aula aula = classnodesyx[y][x];
-                    TextView tv_classname = (TextView) itemnodesyx[y][x].findViewById(R.id.tv_classname);
-                    TextView tv_sala = (TextView) itemnodesyx[y][x].findViewById(R.id.tv_sala);
-
-                    tv_classname.setText("");
-                    tv_sala.setText("");
-
-                    itemnodesyx[y][x].setOnClickListener(null);
-                }
+                classnodesyx[y][x] = null;
             }
         }
         aulasfreq = db.readAulasFrequentadas(aluno);
@@ -189,6 +197,8 @@ public class EditClassScheduleActivity extends AppCompatActivity implements
         Log.d("debug", "onFinishAddClassDialog");
         aula.setIdaula(db.createAulas(aula));
         db.createAulasFrequentadas(aluno, aula);
+        redraw();
+        /*
         int nodex = aula.getDiaSemana();
         int nodey = aula.getHoraentrada() - minStartTime;
         classnodesyx[nodey][nodex] = aula;
@@ -204,13 +214,15 @@ public class EditClassScheduleActivity extends AppCompatActivity implements
                 EditClassDialogFragment fragment = EditClassDialogFragment.newInstance(aluno, aula);
                 fragment.show(getSupportFragmentManager(), "fragment_edit_class");
             }
-        });
+        });*/
     }
 
     @Override
     public void onFinishEditClassDialog(final Aula aula, Aula oldaula) {
         Log.d("debug", "onFinishEditClassDialog");
         db.updateAulas(aula);
+        redraw();
+        /*
         Log.d("debug", "BLABLA " + aula.getIdaula());
         Log.d("debug", "BLABLA " + aula.getDiaSemana());
         Log.d("debug", "BLABLA " + aula.getHoraentrada());
@@ -241,7 +253,7 @@ public class EditClassScheduleActivity extends AppCompatActivity implements
                 EditClassDialogFragment fragment = EditClassDialogFragment.newInstance(aluno, aula);
                 fragment.show(getSupportFragmentManager(), "fragment_edit_class");
             }
-        });
+        });*/
     }
 
     @Override
