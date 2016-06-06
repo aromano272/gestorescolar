@@ -1,13 +1,16 @@
 package com.example.aromano.adm_proj_gestorescolar;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -33,10 +36,15 @@ public class ClassScheduleFragment extends Fragment {
     static HorizontalScrollView sv_weeksinfo;
     static boolean isActive = false;
 
-    private Aluno aluno;
     private DBHelper db;
     private ArrayList<Aula> aulasfreq;
-    Calendar calendar;
+    private Aluno aluno;
+    private FrameLayout[][] itemnodesyx;
+    private Aula[][] classnodesyx;
+    private String[] weekdays;
+    private int minStartTime;
+    private int maxStartTime;
+    private SimpleDateFormat sdf;
 
     public static ClassScheduleFragment newInstance(Aluno aluno) {
         ClassScheduleFragment fragment = new ClassScheduleFragment();
@@ -66,7 +74,7 @@ public class ClassScheduleFragment extends Fragment {
 
         db = DBHelper.getInstance(getActivity());
         aulasfreq = db.readAulasFrequentadas(aluno);
-        calendar = Calendar.getInstance();
+        sdf = new SimpleDateFormat("HH:mm");
 
         if(aulasfreq != null) {
             return inflater.inflate(R.layout.fragment_class_schedule, container, false);
@@ -87,6 +95,7 @@ public class ClassScheduleFragment extends Fragment {
 
         if(aulasfreq != null) {
             populateScheduleScaffold(layout_timeinfo, layout_weekdayinfo, table_schedule);
+            populateScheduleClassesArray();
             populateScheduleClasses();
         } else {
             Button btn_addschedule = (Button) view.findViewById(R.id.btn_addschedule);
@@ -99,23 +108,21 @@ public class ClassScheduleFragment extends Fragment {
         }
     }
 
+
     private void populateScheduleScaffold(LinearLayout layout_timeinfo, LinearLayout layout_weekdayinfo, TableLayout table_schedule) {
-        // TODO get the earliest class on the week and the latest, and populate layout_timeinfo according to min and max times
-        int minTime = 8;
-        int maxTime = 24;
-        //float timeIncrements = 1f;
+        minStartTime = 8;
+        maxStartTime = 23;
+        weekdays = new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+/*
         boolean saturdayClasses = false;
         boolean sundayClasses = false;
 
-
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-
         for (Aula aula : aulasfreq) {
             int horaentrada = aula.getHoraentrada();
-            if(horaentrada < minTime) {
-                minTime = horaentrada;
-            } else if(horaentrada > maxTime) {
-                maxTime = horaentrada;
+            if(horaentrada < minStartTime) {
+                minStartTime = horaentrada;
+            } else if(horaentrada > maxStartTime) {
+                maxStartTime = horaentrada;
             }
             if(aula.getDiaSemana() == 5) {
                 saturdayClasses = true;
@@ -124,7 +131,6 @@ public class ClassScheduleFragment extends Fragment {
             }
         }
 
-        String[] weekdays;
         if(saturdayClasses && sundayClasses) {
             weekdays = new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
         } else if(saturdayClasses) {
@@ -134,9 +140,9 @@ public class ClassScheduleFragment extends Fragment {
         } else {
             weekdays = new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
         }
-
+*/
         // TODO make it possible to set minutes
-        for(int i = minTime; i <= maxTime; i++) {
+        for(int i = minStartTime; i <= maxStartTime; i++) {
             FrameLayout layout_time = (FrameLayout) LayoutInflater.from(getActivity()).inflate(R.layout.class_schedule_timeinfo, null);
             TextView tv_time = (TextView) layout_time.findViewById(R.id.tv_time);
 
@@ -148,9 +154,7 @@ public class ClassScheduleFragment extends Fragment {
             }
 
             time = hour + ":00";
-
             tv_time.setText(time);
-
             layout_timeinfo.addView(layout_time);
         }
 
@@ -162,27 +166,52 @@ public class ClassScheduleFragment extends Fragment {
             layout_weekdayinfo.addView(layout_weekday);
         }
 
-        FrameLayout[][] itemnodesyx = new FrameLayout[maxTime-minTime+1][weekdays.length];
+        // we need to use framelayout because layoutparams actually has to be the type of the parent and not the view itself
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) table_schedule.getLayoutParams();
+        // apparently if the tablelayout width is set to wrap_content it doesnt work, as tablerow's and their children dont seem to have width
+        // maybe because w're using TwoDScrollView instead of a regular ScrollView
+        lp.width = (int)getResources().getDimension(R.dimen.class_schedule_itemnode_width) * weekdays.length;
+        table_schedule.setLayoutParams(lp);
+
+        itemnodesyx = new FrameLayout[maxStartTime - minStartTime + 1][weekdays.length];
+        classnodesyx = new Aula[maxStartTime - minStartTime + 1][weekdays.length];
 
         for(int y = 0; y < itemnodesyx.length; y++) {
             TableRow tr_node = new TableRow(getActivity());
-            tr_node.setLayoutParams(new TableRow.LayoutParams(
-                    (int)getResources().getDimension(R.dimen.class_schedule_itemnode_width),
-                    (int)getResources().getDimension(R.dimen.class_schedule_itemnode_height)));
+
             for(int x = 0; x < itemnodesyx[x].length; x++) {
                 FrameLayout layout_itemnode = (FrameLayout) LayoutInflater.from(getActivity()).inflate(R.layout.class_schedule_itemnode, null);
-                TextView tv_itemnode = (TextView) layout_itemnode.findViewById(R.id.tv_classname);
 
                 // TODO maybe use the TextView reference to skip the findviewbyid afterwards? meh
-                itemnodesyx[x][y] = layout_itemnode;
+                Log.d("debug", String.valueOf(x));
+                itemnodesyx[y][x] = layout_itemnode;
                 tr_node.addView(layout_itemnode);
             }
             table_schedule.addView(tr_node);
         }
     }
 
-    public void populateScheduleClasses() {
+    private void populateScheduleClassesArray() {
+        for (Aula aula : aulasfreq) {
+            int nodex = aula.getDiaSemana();
+            int nodey = aula.getHoraentrada() - minStartTime;
+            classnodesyx[nodey][nodex] = aula;
+        }
+    }
 
+    private void populateScheduleClasses() {
+        for (int y = 0; y < classnodesyx.length; y++) {
+            for (int x = 0; x < classnodesyx[y].length; x++) {
+                if (classnodesyx[y][x] != null) {
+                    final Aula aula = classnodesyx[y][x];
+                    TextView tv_classname = (TextView) itemnodesyx[y][x].findViewById(R.id.tv_classname);
+                    TextView tv_sala = (TextView) itemnodesyx[y][x].findViewById(R.id.tv_sala);
+
+                    tv_classname.setText(aula.getCadeira().getAbbr());
+                    tv_sala.setText(aula.getSala());
+                }
+            }
+        }
     }
 
     private void editSchedule() {
@@ -191,10 +220,26 @@ public class ClassScheduleFragment extends Fragment {
             intent.putParcelableArrayListExtra("aulasfreq", aulasfreq);
         }
         intent.putExtra("aluno", aluno);
-        startActivity(intent);
+        startActivityForResult(intent, 0);
     }
 
+    private void redraw() {
+        for (int y = 0; y < classnodesyx.length; y++) {
+            for (int x = 0; x < classnodesyx[y].length; x++) {
+                if (classnodesyx[y][x] != null) {
+                    final Aula aula = classnodesyx[y][x];
+                    TextView tv_classname = (TextView) itemnodesyx[y][x].findViewById(R.id.tv_classname);
+                    TextView tv_sala = (TextView) itemnodesyx[y][x].findViewById(R.id.tv_sala);
 
+                    tv_classname.setText("");
+                    tv_sala.setText("");
+                }
+            }
+        }
+        aulasfreq = db.readAulasFrequentadas(aluno);
+        populateScheduleClassesArray();
+        populateScheduleClasses();
+    }
 
 
     @Override
@@ -217,9 +262,32 @@ public class ClassScheduleFragment extends Fragment {
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 0:
+                if(resultCode == Activity.RESULT_OK) {
+                    redraw();
+                }
+                break;
+        }
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
-        inflater.inflate(R.menu.fragment_event, menu);
+        inflater.inflate(R.menu.fragment_class, menu);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_class_edit:
+                editSchedule();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

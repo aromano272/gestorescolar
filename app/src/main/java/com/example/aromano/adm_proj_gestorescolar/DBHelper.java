@@ -17,7 +17,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static SQLiteDatabase db;
 
     private static final String DATABASE_NAME = "gestorescolar.db";
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 24;
 
     private DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -97,17 +97,14 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String tb_notas = "tb_notas";
     public static final String col_notas_id = "_id";
     public static final String col_notas_idaluno = "idaluno";
-    public static final String col_notas_idevento = "idevento";
+    public static final String col_notas_idcadeira = "idcadeira";
     public static final String col_notas_nota = "nota";
     public static final String const_notas_fktb_notastb_alunos = String.format(
             "constraint fktb_notastb_alunos foreign key (%s) references %s (%s) on update cascade on delete cascade",
             col_notas_idaluno, tb_alunos, col_alunos_id);
-    public static final String const_notas_fktb_notastb_eventos = String.format(
-            "constraint fktb_notastb_eventos foreign key (%s) references %s (%s) on update cascade on delete cascade",
-            col_notas_idevento, tb_eventos, col_eventos_id);
-    public static final String const_notas_unqidalunoidevento = String.format(
-            "constraint unqidalunoidevento unique (%s,%s)",
-            col_notas_idaluno, col_notas_idevento);
+    public static final String const_notas_fktb_notastb_cadeiras = String.format(
+            "constraint fktb_notastb_cadeiras foreign key (%s) references %s (%s) on update cascade on delete cascade",
+            col_notas_idcadeira, tb_cadeiras, col_cadeiras_id);
 
 
 
@@ -181,11 +178,10 @@ public class DBHelper extends SQLiteOpenHelper {
                         "%s int not null," +
                         "%s float not null," +
                         "%s," +
-                        "%s," +
                         "%s" +
                         ");",
-                tb_notas, col_notas_id, col_notas_idaluno, col_notas_idevento, col_notas_nota, const_notas_fktb_notastb_alunos,
-                const_notas_fktb_notastb_eventos, const_notas_unqidalunoidevento);
+                tb_notas, col_notas_id, col_notas_idaluno, col_notas_idcadeira, col_notas_nota, const_notas_fktb_notastb_alunos,
+                const_notas_fktb_notastb_cadeiras);
 
 
         try {
@@ -292,11 +288,24 @@ public class DBHelper extends SQLiteOpenHelper {
         return (int) db.insert(tb_aulas, null, cv);
     }
 
+    public void updateAulas(Aula aula) {
+        ContentValues cv = new ContentValues();
+        cv.put(col_aulas_idcadeira, aula.getCadeira().getIdcadeira());
+        cv.put(col_aulas_diasemana, aula.getDiaSemana());
+        cv.put(col_aulas_horaentrada, aula.getHoraentrada());
+        cv.put(col_aulas_sala, aula.getSala());
+
+        db.update(tb_aulas, cv, col_aulas_id + "=" + aula.getIdaula(), null);
+    }
+
 
 
     // aulasfreq
     public int createAulasFrequentadas(Aluno aluno, Aula aula) {
         ContentValues cv = new ContentValues();
+        if(!checkScheduleAvailability(aluno, aula)) {
+            return -1;
+        }
         cv.put(col_aulasfrequentadas_idaluno, aluno.getIdaluno());
         cv.put(col_aulasfrequentadas_idaula, aula.getIdaula());
 
@@ -306,8 +315,11 @@ public class DBHelper extends SQLiteOpenHelper {
     public ArrayList<Aula> readAulasFrequentadas(Aluno aluno) {
         ArrayList<Aula> aulasfreq = new ArrayList<>();
         String query = "select " +
+                "tb_cadeiras._id as idcadeira, " +
                 "tb_cadeiras.nome, " +
                 "tb_cadeiras.abbr, " +
+                "tb_cadeiras.creditos, " +
+                "tb_aulas._id as idaula, " +
                 "tb_aulas.diasemana, " +
                 "tb_aulas.horaentrada, " +
                 "tb_aulas.sala " +
@@ -326,18 +338,41 @@ public class DBHelper extends SQLiteOpenHelper {
         }
 
         while(c.moveToNext()) {
+            int idcadeira = c.getInt(c.getColumnIndex("idcadeira"));
             String nome = c.getString(c.getColumnIndex("nome"));
             String abbr = c.getString(c.getColumnIndex("abbr"));
+            int creditos = c.getInt(c.getColumnIndex("creditos"));
+            int idaula = c.getInt(c.getColumnIndex("idaula"));
             int diasemana = c.getInt(c.getColumnIndex("diasemana"));
             int horaentrada = c.getInt(c.getColumnIndex("horaentrada"));
             String sala = c.getString(c.getColumnIndex("sala"));
 
-            Cadeira cadeira = new Cadeira(nome, abbr);
-            Aula aula = new Aula(cadeira, diasemana, horaentrada, sala);
+            Cadeira cadeira = new Cadeira(idcadeira, nome, abbr, creditos);
+            Aula aula = new Aula(idaula, cadeira, diasemana, horaentrada, sala);
             aulasfreq.add(aula);
         }
         c.close();
         return aulasfreq;
+    }
+
+    public boolean checkScheduleAvailability(Aluno aluno, Aula aula) {
+        int idaluno = aluno.getIdaluno();
+        int horaentrada = aula.getHoraentrada();
+        int diasemana = aula.getDiaSemana();
+
+        String query = "select * from tb_aulas " +
+                "inner join tb_aulasfrequentadas on tb_aulasfrequentadas.idaula = tb_aulas._id " +
+                "where tb_aulasfrequentadas.idaluno = " + idaluno +
+                " and tb_aulas.diasemana = " + diasemana + " and tb_aulas.horaentrada = " + horaentrada;
+
+        Cursor c = db.rawQuery(query, null);
+
+        if(c == null || c.getCount() == 0) {
+            return true;
+        }
+
+        c.close();
+        return false;
     }
 
     // cadeiras
@@ -472,7 +507,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public int createNotas(Nota nota) {
         ContentValues cv = new ContentValues();
         cv.put(col_notas_idaluno, nota.getAluno().getIdaluno());
-        cv.put(col_notas_idevento, nota.getEvento().getIdevento());
+        cv.put(col_notas_idcadeira, nota.getCadeira().getIdcadeira());
         cv.put(col_notas_nota, nota.getNota());
 
         return (int) db.insert(tb_notas, null, cv);
@@ -482,20 +517,15 @@ public class DBHelper extends SQLiteOpenHelper {
         ArrayList<Nota> notas = new ArrayList<>();
         String query = "select " +
                 "tb_notas._id as idnota, " +
-                "tb_notas.idevento, " +
                 "tb_notas.nota, " +
-                "tb_eventos.datahora, " +
-                "tb_eventos.descricao, " +
-                "tb_eventos.tipo, " +
-                "tb_eventos.sala, " +
-                "tb_eventos.idcadeira, " +
+                "tb_cadeiras._id as idcadeira, " +
                 "tb_cadeiras.nome, " +
                 "tb_cadeiras.abbr, " +
                 "tb_cadeiras.creditos " +
                 "from tb_notas " +
-                "inner join tb_eventos on tb_eventos._id = tb_notas.idevento " +
-                "inner join tb_cadeiras on tb_cadeiras._id = tb_eventos.idcadeira " +
-                "where idaluno = " + aluno.getIdaluno() + ";";
+                "inner join tb_cadeiras on tb_cadeiras._id = tb_notas.idcadeira " +
+                "where idaluno = " + aluno.getIdaluno() + " " +
+                "order by idcadeira asc;";
 
         Cursor c = db.rawQuery(query, null);
 
@@ -506,20 +536,14 @@ public class DBHelper extends SQLiteOpenHelper {
 
         while(c.moveToNext()) {
             int idnota = c.getInt(c.getColumnIndex("idnota"));
-            int idevento = c.getInt(c.getColumnIndex("idevento"));
             float notavalor = c.getFloat(c.getColumnIndex("nota"));
-            String datahora = c.getString(c.getColumnIndex("datahora"));
-            String descricao = c.getString(c.getColumnIndex("descricao"));
-            String tipo = c.getString(c.getColumnIndex("tipo"));
-            String sala = c.getString(c.getColumnIndex("sala"));
             int idcadeira = c.getInt(c.getColumnIndex("idcadeira"));
             int creditos = c.getInt(c.getColumnIndex("creditos"));
             String abbr = c.getString(c.getColumnIndex("abbr"));
             String nome = c.getString(c.getColumnIndex("nome"));
 
             Cadeira cadeira = new Cadeira(idcadeira, nome, abbr, creditos);
-            Evento evento = new Evento(idevento, cadeira, tipo, datahora, descricao, sala);
-            Nota nota = new Nota(idnota, aluno, evento, notavalor);
+            Nota nota = new Nota(idnota, aluno, cadeira, notavalor);
             notas.add(nota);
         }
         c.close();

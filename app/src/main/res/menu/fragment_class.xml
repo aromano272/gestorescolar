@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <item
+        android:id="@+id/menu_class_edit"
+        android:title="ADD"
+        android:icon="@drawable/ic_edit_white_24dp"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/menu_class_adjustGrid"
+        android:title="Adjust Grid to Schedule"
+        android:checkable="true"
+        app:showAsAction="never"
+        />
+</menu>

@@ -14,7 +14,6 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,13 +24,12 @@ import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 
-
-public class AddClassDialogFragment extends DialogFragment
+public class EditClassDialogFragment extends DialogFragment
         implements AddCadeiraDialogFragment.AddCadeiraDialogListener, ClassTimePickerFragment.ClassTimeDialogListener {
     private Aluno aluno;
+    private Aula oldaula;
     private DBHelper db;
     private ArrayList<Cadeira> cadeiras;
     ArrayList<String> nomecadeiras = new ArrayList<>();
@@ -43,27 +41,25 @@ public class AddClassDialogFragment extends DialogFragment
     EditText et_sala;
     ImageView iv_addcadeira;
     String horaentrada;
-    int starttime = -1;
     SimpleDateFormat sdf;
-    int diasemana;
+    int starttime = -1;
 
     TextView tv_invisibleError;
 
-    public interface AddClassDialogListener {
-        void onFinishAddClassDialog(Aula aula);
+    public interface EditClassDialogListener {
+        void onFinishEditClassDialog(Aula aula, Aula oldaula);
     }
 
-    public static AddClassDialogFragment newInstance(Aluno aluno, int starttime, int diasemana) {
-        AddClassDialogFragment fragment = new AddClassDialogFragment();
+    public static EditClassDialogFragment newInstance(Aluno aluno, Aula oldaula) {
+        EditClassDialogFragment fragment = new EditClassDialogFragment();
         Bundle args = new Bundle();
         args.putParcelable("aluno", aluno);
-        args.putInt("starttime", starttime);
-        args.putInt("diasemana", diasemana);
+        args.putParcelable("oldaula", oldaula);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public AddClassDialogFragment() {
+    public EditClassDialogFragment() {
         // Required empty public constructor
     }
 
@@ -74,8 +70,7 @@ public class AddClassDialogFragment extends DialogFragment
 
         if(getArguments() != null) {
             aluno = getArguments().getParcelable("aluno");
-            starttime = getArguments().getInt("starttime");
-            diasemana = getArguments().getInt("diasemana");
+            oldaula = getArguments().getParcelable("oldaula");
         }
     }
 
@@ -84,7 +79,7 @@ public class AddClassDialogFragment extends DialogFragment
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         //return super.onCreateDialog(savedInstanceState);
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity())
-                .setTitle("Adicionar Aula")
+                .setTitle("Editar Aula")
                 .setPositiveButton(android.R.string.yes,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
@@ -114,6 +109,7 @@ public class AddClassDialogFragment extends DialogFragment
         sdf = new SimpleDateFormat("HH:mm");
 
         db = DBHelper.getInstance(getActivity());
+        starttime = oldaula.getHoraentrada();
 
         cadeiras = db.readCadeiras();
 
@@ -127,7 +123,6 @@ public class AddClassDialogFragment extends DialogFragment
         for (Cadeira cadeira : cadeiras) {
             nomecadeiras.add(cadeira.getName());
         }
-
         cadeiraSpinnerAdapter = new ArrayAdapter<>(
                 getActivity(), android.R.layout.simple_spinner_item, nomecadeiras);
         cadeiraSpinnerAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
@@ -142,7 +137,7 @@ public class AddClassDialogFragment extends DialogFragment
             @Override
             public void onClick(View v) {
                 AddCadeiraDialogFragment fragment = AddCadeiraDialogFragment.newInstance(aluno);
-                fragment.setTargetFragment(AddClassDialogFragment.this, 300);
+                fragment.setTargetFragment(EditClassDialogFragment.this, 300);
                 fragment.show(getActivity().getSupportFragmentManager(), "fragment_add_cadeira");
             }
         });
@@ -150,7 +145,7 @@ public class AddClassDialogFragment extends DialogFragment
         btn_horaentrada.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ClassTimePickerFragment fragment = ClassTimePickerFragment.newInstance(starttime, AddClassDialogFragment.this);
+                ClassTimePickerFragment fragment = ClassTimePickerFragment.newInstance(starttime, EditClassDialogFragment.this);
                 fragment.show(getActivity().getSupportFragmentManager(), "fragment_starttime_picker");
             }
         });
@@ -161,8 +156,9 @@ public class AddClassDialogFragment extends DialogFragment
             horaentrada = String.valueOf(starttime) + ":00";
         }
         btn_horaentrada.setText(horaentrada);
-
-        sp_diasemana.setSelection(diasemana);
+        sp_diasemana.setSelection(oldaula.getDiaSemana());
+        sp_cadeiras.setSelection(oldaula.getCadeira().getIdcadeira());
+        et_sala.setText(oldaula.getSala());
 
         dialog.setView(view);
         return dialog.create();
@@ -186,12 +182,12 @@ public class AddClassDialogFragment extends DialogFragment
                         btn_horaentrada.setError("Escolha uma hora de entrada");
                     } else if(et_sala.length() < 1) {
                         et_sala.setError("Escolha a sala");
-                    } else if (!db.checkScheduleAvailability(aluno, new Aula(cadeiras.get((int)sp_cadeiras.getSelectedItemId()), (int) sp_diasemana.getSelectedItemId(), starttime, et_sala.getText().toString()))) {
+                    } else if (!db.checkScheduleAvailability(aluno, new Aula(cadeiras.get((int)sp_cadeiras.getSelectedItemId()), (int) sp_diasemana.getSelectedItemId(), starttime, et_sala.getText().toString())) && !((oldaula.getHoraentrada() == starttime) && (oldaula.getDiaSemana() == (int) sp_diasemana.getSelectedItemId()))) {
                         btn_horaentrada.setError("Horário não disponivel");
                         Toast.makeText(getActivity(), "Horário nao disponivel, escolha outra hora/dia", Toast.LENGTH_LONG).show();
                     } else {
                         cadeira = cadeiras.get((int)sp_cadeiras.getSelectedItemId());
-                        Aula aula = new Aula(cadeira, (int)sp_diasemana.getSelectedItemId(), starttime, et_sala.getText().toString().toUpperCase());
+                        Aula aula = new Aula(oldaula.getIdaula(), cadeira, (int)sp_diasemana.getSelectedItemId(), starttime, et_sala.getText().toString().toUpperCase());
                         sendBackResult(aula);
                     }
 
@@ -207,12 +203,12 @@ public class AddClassDialogFragment extends DialogFragment
         if(cadeiras.get(0).getIdcadeira() == -1) {
             // dummy item that has to be removed
             Log.d("debug", "dummy cadeira removed");
-            AddClassDialogFragment.this.cadeiras.remove(0);
-            AddClassDialogFragment.this.nomecadeiras.remove(0);
+            EditClassDialogFragment.this.cadeiras.remove(0);
+            EditClassDialogFragment.this.nomecadeiras.remove(0);
         }
         tv_invisibleError.setError(null);
-        AddClassDialogFragment.this.cadeiras.add(cadeira);
-        AddClassDialogFragment.this.nomecadeiras.add(cadeira.getName());
+        EditClassDialogFragment.this.cadeiras.add(cadeira);
+        EditClassDialogFragment.this.nomecadeiras.add(cadeira.getName());
         cadeiraSpinnerAdapter.notifyDataSetChanged();
         sp_cadeiras.setSelection(cadeiras.size()-1);
     }
@@ -237,8 +233,8 @@ public class AddClassDialogFragment extends DialogFragment
     }
 
     public void sendBackResult(Aula aula) {
-        AddClassDialogListener listener = (AddClassDialogListener) getActivity();
-        listener.onFinishAddClassDialog(aula);
+        EditClassDialogListener listener = (EditClassDialogListener) getActivity();
+        listener.onFinishEditClassDialog(aula, oldaula);
         dismiss();
     }
 }

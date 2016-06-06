@@ -74,7 +74,7 @@ public class EditEventDialogFragment extends DialogFragment implements AddCadeir
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity())
-                .setTitle("Adicionar Evento")
+                .setTitle("Editar Evento")
                 .setPositiveButton(android.R.string.yes,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
@@ -141,11 +141,13 @@ public class EditEventDialogFragment extends DialogFragment implements AddCadeir
         try {
             Date data = sdf.parse(evento.getDatahora());
             Log.d("debug", evento.getDatahora());
+            datetimeFormatted = evento.getDatahora();
             btn_calendar.setText(evento.getDatahora());
             calendar.setTime(data);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
 
         et_sala.setText(evento.getSala());
         et_descricao.setText(evento.getDescricao());

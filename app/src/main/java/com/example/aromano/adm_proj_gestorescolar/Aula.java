@@ -16,12 +16,14 @@ public class Aula implements Parcelable {
     public Aula(Cadeira cadeira, int diaSemana, int horaentrada, String sala) {
         this.sala = sala;
         this.cadeira = cadeira;
+        this.diaSemana = diaSemana;
         this.horaentrada = horaentrada;
     }
 
     public Aula(int idaula, Cadeira cadeira, int diaSemana, int horaentrada, String sala) {
         this.idaula = idaula;
         this.cadeira = cadeira;
+        this.diaSemana = diaSemana;
         this.horaentrada = horaentrada;
         this.sala = sala;
     }

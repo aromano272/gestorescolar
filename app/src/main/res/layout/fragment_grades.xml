@@ -5,23 +5,26 @@
     tools:context=".GradesFragment"
     android:background="#FAFEFF"
     android:orientation="vertical"
-    android:gravity="center"
     >
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Grades"
-        android:textSize="40sp"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif-condensed"
-        />
-
-    <EditText
+    android:id="@id/tv_title"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Exam Schedule"
+    android:textSize="40sp"
+    android:textStyle="bold"
+    android:fontFamily="sans-serif-condensed"
+    android:textColor="#999"
+    android:layout_gravity="center_horizontal"
+    />
+    
+    <com.github.mikephil.charting.charts.BarChart
+        android:id="@+id/chart_grades"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
-        />
+        android:layout_height="match_parent"
+        >
+
+    </com.github.mikephil.charting.charts.BarChart>
 
 </LinearLayout>

@@ -151,6 +151,7 @@ public class EventScheduleFragment extends Fragment implements AddEventDialogFra
 
     @Override
     public void onEventClicked(int position) {
+        // TODO add functionality
         Log.d("debug", "onItemClicked");
     }
 }

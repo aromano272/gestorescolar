@@ -1,9 +1,14 @@
 package com.example.aromano.adm_proj_gestorescolar;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
@@ -16,7 +21,8 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-public class EditClassScheduleActivity extends AppCompatActivity implements AddClassDialogFragment.AddClassDialogListener {
+public class EditClassScheduleActivity extends AppCompatActivity implements
+        AddClassDialogFragment.AddClassDialogListener, EditClassDialogFragment.EditClassDialogListener {
     static ScrollView sv_timeinfo;
     static HorizontalScrollView sv_weeksinfo;
     static boolean isActive = false;
@@ -25,6 +31,8 @@ public class EditClassScheduleActivity extends AppCompatActivity implements AddC
     private ArrayList<Aula> aulasfreq;
     private Aluno aluno;
     private FrameLayout[][] itemnodesyx;
+    private Aula[][] classnodesyx;
+    private String[] weekdays;
     private int minStartTime;
     private int maxStartTime;
     private SimpleDateFormat sdf;
@@ -47,7 +55,8 @@ public class EditClassScheduleActivity extends AppCompatActivity implements AddC
         TableLayout table_schedule = (TableLayout) findViewById(R.id.table_schedule);
         populateScheduleScaffold(layout_timeinfo, layout_weekdayinfo, table_schedule);
 
-        if(getIntent().getParcelableArrayExtra("aulasfreq") != null) {
+        if(getIntent().getParcelableArrayListExtra("aulasfreq") != null) {
+            populateScheduleClassesArray();
             populateScheduleClasses();
         }
     }
@@ -57,7 +66,7 @@ public class EditClassScheduleActivity extends AppCompatActivity implements AddC
         minStartTime = 8;
         maxStartTime = 23;
 
-        String[] weekdays = new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+        weekdays = new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
 
 
@@ -94,6 +103,7 @@ public class EditClassScheduleActivity extends AppCompatActivity implements AddC
         table_schedule.setLayoutParams(lp);
 
         itemnodesyx = new FrameLayout[maxStartTime - minStartTime + 1][weekdays.length];
+        classnodesyx = new Aula[maxStartTime - minStartTime + 1][weekdays.length];
 
         for(int y = 0; y < itemnodesyx.length; y++) {
             TableRow tr_node = new TableRow(this);
@@ -112,9 +122,8 @@ public class EditClassScheduleActivity extends AppCompatActivity implements AddC
                 layout_itemnode.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.d("debug", "DEBUGDEBUGDEBUG");
                         AddClassDialogFragment fragment = AddClassDialogFragment.newInstance(aluno, starttime, diasemana);
-                        fragment.show(getSupportFragmentManager(), "fragment_time_picker");
+                        fragment.show(getSupportFragmentManager(), "fragment_add_class");
                     }
                 });
 
@@ -124,33 +133,65 @@ public class EditClassScheduleActivity extends AppCompatActivity implements AddC
 
     }
 
-    public void populateScheduleClasses() {
-        for (final Aula aula : aulasfreq) {
+    private void populateScheduleClassesArray() {
+        for (Aula aula : aulasfreq) {
             int nodex = aula.getDiaSemana();
             int nodey = aula.getHoraentrada() - minStartTime;
-
-            TextView tv_classname = (TextView) itemnodesyx[nodey][nodex].findViewById(R.id.tv_classname);
-            TextView tv_sala = (TextView) itemnodesyx[nodey][nodex].findViewById(R.id.tv_sala);
-
-            tv_classname.setText(aula.getCadeira().getAbbr());
-            tv_sala.setText(aula.getSala());
-
-            itemnodesyx[nodey][nodex].setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AddClassDialogFragment fragment = AddClassDialogFragment.newInstance(aluno, aula.getHoraentrada(), aula.getDiaSemana());
-                    fragment.show(getSupportFragmentManager(), "fragment_time_picker");
-                }
-            });
+            classnodesyx[nodey][nodex] = aula;
         }
+    }
+
+    private void populateScheduleClasses() {
+        for(int y = 0; y < classnodesyx.length; y++) {
+            for(int x = 0; x < classnodesyx[y].length; x++) {
+                if(classnodesyx[y][x] != null) {
+                    final Aula aula = classnodesyx[y][x];
+                    TextView tv_classname = (TextView) itemnodesyx[y][x].findViewById(R.id.tv_classname);
+                    TextView tv_sala = (TextView) itemnodesyx[y][x].findViewById(R.id.tv_sala);
+
+                    tv_classname.setText(aula.getCadeira().getAbbr());
+                    tv_sala.setText(aula.getSala());
+
+                    itemnodesyx[y][x].setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            EditClassDialogFragment fragment = EditClassDialogFragment.newInstance(aluno, aula);
+                            fragment.show(getSupportFragmentManager(), "fragment_edit_class");
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    private void redraw() {
+        for (int y = 0; y < classnodesyx.length; y++) {
+            for (int x = 0; x < classnodesyx[y].length; x++) {
+                if (classnodesyx[y][x] != null) {
+                    final Aula aula = classnodesyx[y][x];
+                    TextView tv_classname = (TextView) itemnodesyx[y][x].findViewById(R.id.tv_classname);
+                    TextView tv_sala = (TextView) itemnodesyx[y][x].findViewById(R.id.tv_sala);
+
+                    tv_classname.setText("");
+                    tv_sala.setText("");
+
+                    itemnodesyx[y][x].setOnClickListener(null);
+                }
+            }
+        }
+        aulasfreq = db.readAulasFrequentadas(aluno);
+        populateScheduleClassesArray();
+        populateScheduleClasses();
     }
 
     @Override
     public void onFinishAddClassDialog(final Aula aula) {
-        db.createAulas(aula);
+        Log.d("debug", "onFinishAddClassDialog");
+        aula.setIdaula(db.createAulas(aula));
         db.createAulasFrequentadas(aluno, aula);
         int nodex = aula.getDiaSemana();
         int nodey = aula.getHoraentrada() - minStartTime;
+        classnodesyx[nodey][nodex] = aula;
         TextView tv_classname = (TextView) itemnodesyx[nodey][nodex].findViewById(R.id.tv_classname);
         TextView tv_sala = (TextView) itemnodesyx[nodey][nodex].findViewById(R.id.tv_sala);
 
@@ -160,8 +201,45 @@ public class EditClassScheduleActivity extends AppCompatActivity implements AddC
         itemnodesyx[nodey][nodex].setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AddClassDialogFragment fragment = AddClassDialogFragment.newInstance(aluno, aula.getHoraentrada(), aula.getDiaSemana());
-                fragment.show(getSupportFragmentManager(), "fragment_time_picker");
+                EditClassDialogFragment fragment = EditClassDialogFragment.newInstance(aluno, aula);
+                fragment.show(getSupportFragmentManager(), "fragment_edit_class");
+            }
+        });
+    }
+
+    @Override
+    public void onFinishEditClassDialog(final Aula aula, Aula oldaula) {
+        Log.d("debug", "onFinishEditClassDialog");
+        db.updateAulas(aula);
+        Log.d("debug", "BLABLA " + aula.getIdaula());
+        Log.d("debug", "BLABLA " + aula.getDiaSemana());
+        Log.d("debug", "BLABLA " + aula.getHoraentrada());
+
+        int oldnodex = oldaula.getDiaSemana();
+        int oldnodey = oldaula.getHoraentrada() - minStartTime;
+        classnodesyx[oldnodey][oldnodex] = null;
+        TextView tv_oldclassname = (TextView) itemnodesyx[oldnodey][oldnodex].findViewById(R.id.tv_classname);
+        TextView tv_oldsala = (TextView) itemnodesyx[oldnodey][oldnodex].findViewById(R.id.tv_sala);
+
+        tv_oldclassname.setText("");
+        tv_oldsala.setText("");
+
+        itemnodesyx[oldnodey][oldnodex].setOnClickListener(null);
+
+        int nodex = aula.getDiaSemana();
+        int nodey = aula.getHoraentrada() - minStartTime;
+        classnodesyx[nodey][nodex] = aula;
+        TextView tv_classname = (TextView) itemnodesyx[nodey][nodex].findViewById(R.id.tv_classname);
+        TextView tv_sala = (TextView) itemnodesyx[nodey][nodex].findViewById(R.id.tv_sala);
+
+        tv_classname.setText(aula.getCadeira().getAbbr());
+        tv_sala.setText(aula.getSala());
+
+        itemnodesyx[nodey][nodex].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditClassDialogFragment fragment = EditClassDialogFragment.newInstance(aluno, aula);
+                fragment.show(getSupportFragmentManager(), "fragment_edit_class");
             }
         });
     }
@@ -182,6 +260,25 @@ public class EditClassScheduleActivity extends AppCompatActivity implements AddC
         if((sv_timeinfo != null) && (sv_weeksinfo != null)) {
             sv_timeinfo.scrollTo(0, y);
             sv_weeksinfo.scrollTo(x, 0);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_editclass, menu);
+        return true;
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_class_edit:
+                setResult(Activity.RESULT_OK);
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }

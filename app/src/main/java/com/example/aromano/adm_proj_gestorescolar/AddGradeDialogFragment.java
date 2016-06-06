@@ -2,7 +2,6 @@ package com.example.aromano.adm_proj_gestorescolar;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,51 +10,43 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Created by aRomano on 01/06/2016.
  */
-public class AddEventDialogFragment extends DialogFragment implements AddCadeiraDialogFragment.AddCadeiraDialogListener, DateTimePickerFragment.DateTimeDialogListener {
+public class AddGradeDialogFragment extends DialogFragment implements AddCadeiraDialogFragment.AddCadeiraDialogListener {
     private Aluno aluno;
     private DBHelper db;
     private ArrayList<Cadeira> cadeiras;
     ArrayList<String> nomecadeiras = new ArrayList<>();
-    private String[] tipos = {"Exame", "Trabalho"};
     ArrayAdapter<String> cadeiraSpinnerAdapter;
-    Calendar calendar;
-    Button btn_calendar;
-    String datetimeFormatted;
     Spinner sp_cadeiras;
-
     TextView tv_invisibleError;
+    EditText et_nota;
 
-    public interface AddEventDialogListener {
-        void onFinishAddEventDialog(Evento evento);
+    public interface AddGradeDialogListener {
+        void onFinishAddGradeDialog(Nota nota);
     }
 
-    public static AddEventDialogFragment newInstance(Aluno aluno) {
-        AddEventDialogFragment fragment = new AddEventDialogFragment();
+    public static AddGradeDialogFragment newInstance(Aluno aluno) {
+        AddGradeDialogFragment fragment = new AddGradeDialogFragment();
         Bundle args = new Bundle();
         args.putParcelable("aluno", aluno);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public AddEventDialogFragment() {
+    public AddGradeDialogFragment() {
         // Required empty public constructor
     }
 
@@ -74,7 +65,7 @@ public class AddEventDialogFragment extends DialogFragment implements AddCadeira
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         //return super.onCreateDialog(savedInstanceState);
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity())
-            .setTitle("Adicionar Evento")
+            .setTitle("Adicionar Nota")
             .setPositiveButton(android.R.string.yes,
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
@@ -93,9 +84,10 @@ public class AddEventDialogFragment extends DialogFragment implements AddCadeira
             );
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.fragment_addevent, null);
+        View view = inflater.inflate(R.layout.fragment_addgrade, null);
 
         tv_invisibleError = (TextView) view.findViewById(R.id.tv_invisibleError);
+        et_nota = (EditText) view.findViewById(R.id.et_nota);
 
         db = DBHelper.getInstance(getActivity());
 
@@ -119,30 +111,13 @@ public class AddEventDialogFragment extends DialogFragment implements AddCadeira
         sp_cadeiras = (Spinner) view.findViewById(R.id.sp_cadeiras);
         sp_cadeiras.setAdapter(cadeiraSpinnerAdapter);
 
-        ArrayAdapter<String> tiposSpinnerAdapter = new ArrayAdapter<>(
-                getActivity(), android.R.layout.simple_spinner_item, tipos);
-        tiposSpinnerAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
-
-        Spinner sp_tipos = (Spinner) view.findViewById(R.id.sp_tipos);
-        sp_tipos.setAdapter(tiposSpinnerAdapter);
-
         ImageView iv_addcadeira = (ImageView) view.findViewById(R.id.iv_addcadeira);
         iv_addcadeira.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AddCadeiraDialogFragment fragment = AddCadeiraDialogFragment.newInstance(aluno);
-                fragment.setTargetFragment(AddEventDialogFragment.this, 300);
+                fragment.setTargetFragment(AddGradeDialogFragment.this, 300);
                 fragment.show(getActivity().getSupportFragmentManager(), "fragment_add_cadeira");
-            }
-        });
-
-        btn_calendar = (Button) view.findViewById(R.id.btn_calendar);
-        btn_calendar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DateTimePickerFragment fragment = new DateTimePickerFragment();
-                fragment.setTargetFragment(AddEventDialogFragment.this, 301);
-                fragment.show(getActivity().getSupportFragmentManager(), "fragment_datetime_picker");
             }
         });
 
@@ -157,11 +132,6 @@ public class AddEventDialogFragment extends DialogFragment implements AddCadeira
         super.onStart();
         final AlertDialog dialog = (AlertDialog) getDialog();
         if(dialog != null) {
-            final Spinner sp_tipos = (Spinner) dialog.findViewById(R.id.sp_tipos);
-            final EditText et_sala = (EditText) dialog.findViewById(R.id.et_sala);
-            final EditText et_descricao = (EditText) dialog.findViewById(R.id.et_descricao);
-
-
             Button btn_positive = dialog.getButton(Dialog.BUTTON_POSITIVE);
             btn_positive.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -169,14 +139,15 @@ public class AddEventDialogFragment extends DialogFragment implements AddCadeira
                     Cadeira cadeira;
                     if (cadeiras.get(0).getIdcadeira() == -1) {
                         tv_invisibleError.setError("Por favor adiciona uma cadeira");
-                    } else if(calendar == null) {
-                        btn_calendar.setError("Escolha uma data");
+                    } else if (et_nota.getText().toString().length() < 1) {
+                        et_nota.setError("Por favor adiciona um valor");
+                    } else if (Float.parseFloat(et_nota.getText().toString()) < 0 || Float.parseFloat(et_nota.getText().toString()) > 20) {
+                        et_nota.setError("Introduza um valor entre 0 e 20");
                     } else {
                         cadeira = cadeiras.get((int)sp_cadeiras.getSelectedItemId());
-                        Evento evento = new Evento(cadeira, sp_tipos.getSelectedItem().toString(), datetimeFormatted, et_descricao.getText().toString(), et_sala.getText().toString());
-                        sendBackResult(evento);
+                        Nota nota = new Nota(aluno, cadeira, Float.parseFloat(et_nota.getText().toString()));
+                        sendBackResult(nota);
                     }
-
                 }
             });
         }
@@ -189,27 +160,19 @@ public class AddEventDialogFragment extends DialogFragment implements AddCadeira
         if(cadeiras.get(0).getIdcadeira() == -1) {
             // dummy item that has to be removed
             Log.d("debug", "dummy cadeira removed");
-            AddEventDialogFragment.this.cadeiras.remove(0);
-            AddEventDialogFragment.this.nomecadeiras.remove(0);
+            AddGradeDialogFragment.this.cadeiras.remove(0);
+            AddGradeDialogFragment.this.nomecadeiras.remove(0);
         }
         tv_invisibleError.setError(null);
-        AddEventDialogFragment.this.cadeiras.add(cadeira);
-        AddEventDialogFragment.this.nomecadeiras.add(cadeira.getName());
+        AddGradeDialogFragment.this.cadeiras.add(cadeira);
+        AddGradeDialogFragment.this.nomecadeiras.add(cadeira.getName());
         cadeiraSpinnerAdapter.notifyDataSetChanged();
         sp_cadeiras.setSelection(cadeiras.size()-1);
     }
 
-    @Override
-    public void onFinishDateTimeDialog(Calendar calendar) {
-        this.calendar = calendar;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        datetimeFormatted = sdf.format(calendar.getTime());
-        btn_calendar.setText(datetimeFormatted);
-    }
-
-    public void sendBackResult(Evento evento) {
-        AddEventDialogListener listener = (AddEventDialogListener) getTargetFragment();
-        listener.onFinishAddEventDialog(evento);
+    public void sendBackResult(Nota nota) {
+        AddGradeDialogListener listener = (AddGradeDialogListener) getTargetFragment();
+        listener.onFinishAddGradeDialog(nota);
         dismiss();
     }
 }
