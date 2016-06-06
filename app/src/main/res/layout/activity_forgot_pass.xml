@@ -2,8 +2,8 @@
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="16dp"
-            tools:context="com.example.aromano.adm_proj_gestorescolar.RegisterFragment"
+            android:padding="10dp"
+            tools:context="com.example.aromano.adm_proj_gestorescolar.ForgotPassActivity"
             android:fillViewport="true"
     >
 
@@ -14,12 +14,13 @@
 
         <TextView
             android:id="@+id/tv_title"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Register"
-            android:textColor="#ddd"
+            android:text="Forgot Password?"
+            android:textSize="50sp"
             android:textStyle="bold"
-            android:textSize="40sp"
+            android:fontFamily="sans-serif-condensed"
+            android:textColor="#ccc"
             />
 
         <!-- talvez usar uma scrollview como wrapper para solucionar possiveis problema de tamanho de letra -->
@@ -37,42 +38,23 @@
 
                 <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:gravity="center|left"
-                    android:text="Nome:"
-                    android:layout_marginTop="10dp"
-                    />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:gravity="center|left"
-                    android:text="Apelido:"
-                    android:layout_marginTop="10dp"
-                    />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
+                    android:layout_height="40dp"
                     android:gravity="center|left"
                     android:text="Username:"
-                    android:layout_marginTop="10dp"
                     />
 
                 <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="30dp"
+                    android:layout_height="40dp"
                     android:gravity="center|left"
-                    android:text="Password:"
-                    android:layout_marginTop="10dp"
+                    android:text="Email:"
                     />
 
                 <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="30dp"
+                    android:layout_height="40dp"
                     android:gravity="center|left"
-                    android:text="Confirmar Pass:"
-                    android:layout_marginTop="10dp"
+                    android:text="Nome:"
                     />
 
             </LinearLayout>
@@ -85,45 +67,31 @@
                 >
 
                 <EditText
+                    android:id="@+id/et_username"
                     android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:layout_marginTop="10dp"
-
+                    android:layout_height="40dp"
+                    android:maxLines="1"
                     />
 
                 <EditText
+                    android:id="@+id/et_email"
                     android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:layout_marginTop="10dp"
-
+                    android:layout_height="40dp"
+                    android:maxLines="1"
                     />
 
                 <EditText
+                    android:id="@+id/et_nome"
                     android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:layout_marginTop="10dp"
-
-                    />
-
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:layout_marginTop="10dp"
-
-                    />
-
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:layout_marginTop="10dp"
-
+                    android:layout_height="40dp"
+                    android:maxLines="1"
                     />
 
             </LinearLayout>
 
         </LinearLayout>
 
-        
+
 
     </RelativeLayout>
 

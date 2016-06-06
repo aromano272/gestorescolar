@@ -18,11 +18,6 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 public class EventScheduleFragment extends Fragment implements AddEventDialogFragment.AddEventDialogListener, EditEventDialogFragment.EditEventDialogListener, EventScheduleAdapter.EventScheduleAdapterListener {
-    // TODO maybe implement users calendar integration https://developer.android.com/guide/topics/providers/calendar-provider.html
-    // TODO https://guides.codepath.com/android/Interacting-with-the-Calendar
-
-    // TODO change exames and trabalhos tables and classes to just Eventos, or try to get them to work with Eventos super class
-
     private Aluno aluno;
     private DBHelper db;
     private ArrayList<Evento> eventos = new ArrayList<>();
@@ -151,7 +146,17 @@ public class EventScheduleFragment extends Fragment implements AddEventDialogFra
 
     @Override
     public void onEventClicked(int position) {
-        // TODO add functionality
-        Log.d("debug", "onItemClicked");
+        AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                .setTitle("Descrição")
+                .setNeutralButton(android.R.string.yes,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                dialog.dismiss();
+                            }
+                        }
+                )
+                .setMessage(eventos.get(position).getDescricao())
+                .create();
+        dialog.show();
     }
 }

@@ -1,10 +1,12 @@
 package com.example.aromano.adm_proj_gestorescolar;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -85,7 +87,13 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-
+        tv_forgotpass.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, ForgotPassActivity.class);
+                startActivityForResult(intent, 0);
+            }
+        });
     }
 
     private void launchContentActivity(String user) {
@@ -96,6 +104,22 @@ public class LoginActivity extends AppCompatActivity {
         // starts it as a new task and clears the backstack
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 0:
+                if(resultCode == Activity.RESULT_OK) {
+                    String user = data.getStringExtra("user");
+                    et_user.setText(user);
+                    SharedPreferences users_pass = getSharedPreferences("users_pass", MODE_PRIVATE);
+                    et_pass.setText(users_pass.getString(user, ""));
+                    et_pass.setInputType(InputType.TYPE_TEXT_VARIATION_NORMAL);
+                }
+                break;
+        }
     }
 
     @Override

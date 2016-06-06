@@ -224,6 +224,25 @@ public class ClassScheduleFragment extends Fragment {
     }
 
     private void redraw() {
+        for(int y = 0; y < itemnodesyx.length; y++) {
+            for(int x = 0; x < itemnodesyx[x].length; x++) {
+                TextView tv_classname = (TextView) itemnodesyx[y][x].findViewById(R.id.tv_classname);
+                TextView tv_sala = (TextView) itemnodesyx[y][x].findViewById(R.id.tv_sala);
+                tv_classname.setText("");
+                tv_sala.setText("");
+            }
+        }
+        for (int y = 0; y < classnodesyx.length; y++) {
+            for (int x = 0; x < classnodesyx[y].length; x++) {
+                classnodesyx[y][x] = null;
+            }
+        }
+        aulasfreq = db.readAulasFrequentadas(aluno);
+        populateScheduleClassesArray();
+        populateScheduleClasses();
+    }
+    /*
+    private void redraw() {
         for (int y = 0; y < classnodesyx.length; y++) {
             for (int x = 0; x < classnodesyx[y].length; x++) {
                 if (classnodesyx[y][x] != null) {
@@ -240,7 +259,7 @@ public class ClassScheduleFragment extends Fragment {
         populateScheduleClassesArray();
         populateScheduleClasses();
     }
-
+*/
 
     @Override
     public void onStart() {
