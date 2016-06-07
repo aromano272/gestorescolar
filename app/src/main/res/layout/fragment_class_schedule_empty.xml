@@ -8,7 +8,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Classes Schedule"
+        android:text="Horário"
         android:textSize="40sp"
         android:textStyle="bold"
         android:fontFamily="sans-serif-condensed"
@@ -34,7 +34,7 @@
             android:textColor="#bbb"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="No schedule added yet :("
+            android:text="Nenhum horário adicionado :("
             />
 
         <Button
@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_noschedule"
             android:layout_centerHorizontal="true"
-            android:text="Add yours now!"
+            android:text="Adiciona já o teu!"
             />
 
 

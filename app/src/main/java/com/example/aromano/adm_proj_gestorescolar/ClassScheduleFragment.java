@@ -112,7 +112,7 @@ public class ClassScheduleFragment extends Fragment {
     private void populateScheduleScaffold(LinearLayout layout_timeinfo, LinearLayout layout_weekdayinfo, TableLayout table_schedule) {
         minStartTime = 8;
         maxStartTime = 23;
-        weekdays = new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+        weekdays = new String[]{"Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"};
 /*
         boolean saturdayClasses = false;
         boolean sundayClasses = false;

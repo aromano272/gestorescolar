@@ -66,7 +66,7 @@ public class EditClassScheduleActivity extends AppCompatActivity implements
         minStartTime = 8;
         maxStartTime = 23;
 
-        weekdays = new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+        weekdays = new String[]{"Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"};
 
 
 

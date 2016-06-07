@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ADM_Proj_GestorEscolar</string>
+    <string name="app_name">Gestor Escolar</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
